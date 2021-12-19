@@ -1,6 +1,6 @@
 <?php
 
-require_once "router/dispatcher.php";
+require_once "controller/default_cfg.php";
 require_once "view/crud.php";
 require_once "view/display.php";
 require_once "controller/fetch.php";
@@ -17,7 +17,7 @@ class CRoute
     {
         if ($url == null || $url == "") 
         {
-            $url = 'todo/view';
+            $url = CDefaultCfg::getCfgItem("default_url");
         }
         $this->url = $url;
         $this->update_from_url();
@@ -42,18 +42,11 @@ class CRoute
 
     public function dispatch () 
     {
-        if (array_key_exists($this->module, CDispatcher::getModules())) 
-        {
-            $ret = new CFetcher(CDBConfig::getInstance(), CDispatcher::getModules()[$this->module]);
-            $ret->GetLatest(10);
+        $ret = new CFetcher(CDBConfig::getInstance(), $this->module);
+        $ret->GetLatest(10);
 
-            $ui = new CCrudUi(new CTableOutput(), new CRowOutput());
-            $ui->render($ret->getResults());
-        }
-        else 
-        {
-            echo "Module $this->module not found! Action requested $this->action";
-        }
+        $ui = new CCrudUi(new CTableOutput(), new CRowOutput());
+        $ui->render($ret->getResults());
     }
 };
 

@@ -3,7 +3,7 @@
 require_once "models/base/model_base.php";
 require_once "view/base/view_base.php";
 
-class CTodo implements ITaggable, IDisplayable
+class CTodo implements ITaggable, IDisplayable, JsonSerializable
 {
     /** @var int */
     private $id;
@@ -20,6 +20,16 @@ class CTodo implements ITaggable, IDisplayable
         {
             $this->due_date = DateTime::createFromFormat('Y-m-d', $this->due_date);
         }
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            "id"            => $this->id,
+            "title"         => $this->title,
+            "due_date"      => $this->due_date == null ? null : $this->due_date->format('Y-m-d'),
+            "id_priority"   => $this->id_priority,
+        );
     }
 
     public function setTitle(string $t) 

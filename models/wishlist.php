@@ -3,7 +3,7 @@
 require_once "models/base/model_base.php";
 require_once "view/base/view_base.php";
 
-class CWishlist implements ITaggable, IDisplayable
+class CWishlist implements ITaggable, IDisplayable, JsonSerializable
 {
     /** @var int */
     private $id;
@@ -26,6 +26,20 @@ class CWishlist implements ITaggable, IDisplayable
         {
             $this->deadline = DateTime::createFromFormat('Y-m-d', $this->deadline);
         }
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            "id"            => $this->id,
+            "id_for_user"   => $this->id_for_user,
+            "item"          => $this->item,
+            "link"          => $this->link,
+            "price"         => $this->price,
+            "deadline"      => $this->deadline == null ? null : $this->deadline->format('Y-m-d'),
+            "id_priority"   => $this->id_priority,
+        ];
+
     }
 
     public function setIdForUser(int $i) 

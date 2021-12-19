@@ -36,17 +36,52 @@ class CRoute
         }
         if (sizeof($parts) > 3) 
         {
-            $this->extra = join("/", array_slice($parts, 3));
+            for ($i = 3; $i + 1 < sizeof($parts); $i+= 2) 
+            {
+                $this->extra[$parts[$i]] = $parts[$i + 1];
+            }
+        }
+    }
+
+    public function getExtraParam (string $param) : ?string
+    {
+        if (array_key_exists($param, $this->extra)) 
+        {
+            return $this->extra[$param];
+        }
+        else 
+        {
+            return null;
         }
     }
 
     public function dispatch () 
     {
-        $ret = new CFetcher(CDBConfig::getInstance(), $this->module);
-        $ret->GetLatest(10);
+        switch ($this->action) 
+        {
+            case "fetch":
+                $ret = new CFetcher(CDBConfig::getInstance(), $this->module);
+                $ret->GetLatest(
+                    $this->getExtraParam("limit") == null 
+                    ? CDefaultCfg::getCfgItem("default_pagination") 
+                    : $this->getExtraParam("limit")
+                );
+                echo $ret->getResults();
+                break;
+            
+            case "view":
+                $ui = new CCrudUi(new CTableOutput(), new CRowOutput());
+                $json_response = file_get_contents(
+                    CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/fetch/" );
+                if ($json_response != null && $json_response != "")
+                {
+                    $ui->render(json_decode($json_response));
+                }
+                break;
+        }
 
-        $ui = new CCrudUi(new CTableOutput(), new CRowOutput());
-        $ui->render($ret->getResults());
+
     }
 };
 

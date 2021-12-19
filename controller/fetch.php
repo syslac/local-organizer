@@ -72,12 +72,10 @@ class CFetcher
         else return null;
     }
 
-    public function getResults(): array
+    public function getResults(): string
     {
-        return $this->results;
+        return json_encode($this->results);
     }
-    // here I probably want to output this as JSON, to keep separation
-    // so change displayer classes to get json instead
-}
+};
 
 ?>

@@ -3,7 +3,7 @@
 require_once "models/base/model_base.php";
 require_once "view/base/view_base.php";
 
-class CModule implements IDisplayable
+class CModule implements IDisplayable, JsonSerializable
 {
     /** @var int */
     private $id;
@@ -16,6 +16,16 @@ class CModule implements IDisplayable
 
     public function __construct() 
     {
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            "id"            => $this->id,
+            "module_name"   => $this->module_name,
+            "module_table"  => $this->module_table,
+            "module_class"  => $this->module_class,
+        );
     }
 
     public function setModuleName(string $t) 

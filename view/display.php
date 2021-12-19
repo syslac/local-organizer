@@ -4,10 +4,10 @@ require_once "view/base/view_base.php";
 
 class CRowOutput implements IDisplayItem
 {
-    public function getItemHtml(IDisplayable $item): string
+    public function getItemHtml(object $item): string
     {
         $ret_val = "";
-        foreach($item->getDisplayableFields() as $fld)
+        foreach($item as $key => $fld)
         {
             $ret_val .= "<td>";
             $ret_val .= $fld;
@@ -19,9 +19,9 @@ class CRowOutput implements IDisplayItem
 
 class CLiOutput implements IDisplayItem
 {
-    public function getItemHtml(IDisplayable $item): string
+    public function getItemHtml(object $item): string
     {
-        return vsprintf($item->getDisplayableFormat(), $item->getDisplayableFields());
+        return vsprintf(str_repeat("%s|", sizeof($item)), array_values($item));
     }
 }
 

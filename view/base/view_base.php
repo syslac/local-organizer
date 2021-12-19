@@ -8,7 +8,7 @@ interface IDisplayable
 
 interface IDisplayItem 
 {
-    public function getItemHtml(IDisplayable $item): string;
+    public function getItemHtml(object $item): string;
 }
 
 interface IDisplaySet

@@ -1,0 +1,9 @@
+{
+    "db_name" : "db_name",
+    "db_user" : "db_user",
+    "db_pass" : "db_pass",
+    "default_url" : "index.php/modules/view",
+    "default_module_class" : "CModule",
+    "default_module_table" : "lo_modules",
+    "default_module_column" : "module_name"
+}

@@ -6,6 +6,25 @@ class CDBConfig
 {
     private $dbo;
     private static $dbObject = null;
+    
+    private static $validCols = array(
+        "CWishlist" => array(
+            "id",
+            "id_for_user",
+            "item",
+            "id_priority",
+        ),
+        "CTodo" => array(
+            "id",
+            "title",
+            "due_date",
+            "id_priority",
+        ),
+        "CModule" => array(
+            "id",
+            "module_name",
+        )
+    );
 
     private function __construct() 
     {
@@ -36,6 +55,15 @@ class CDBConfig
         }
  
         return self::$dbObject->getHandle();
+    }
+
+    public function isValidColumn($module, $column) 
+    {
+        if (!array_key_exists($module, self::$validCols)) 
+        {
+            return false;
+        }
+        return in_array($column, self::$validCols[$module]);
     }
 }
 

@@ -62,6 +62,10 @@ class CFetcher
 
     public function searchByColumn(string $column, string $value) : ?object
     {
+        if (!CDBConfig::isValidColumn($this->obj, $column)) 
+        {
+            return null;
+        }
         $stmt = $this->dbo->prepare("SELECT * FROM ".$this->table." WHERE ".$column ." = ? LIMIT 0,1");
         $stmt->execute([$value]);
         $this->results = $stmt->fetchAll(PDO::FETCH_CLASS, $this->obj);
@@ -69,7 +73,7 @@ class CFetcher
         {
             return $this->results[0];
         }
-        else return null;
+        else return [];
     }
 
     public function getResults(): string

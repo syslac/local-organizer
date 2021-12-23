@@ -13,6 +13,8 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
     private $due_date;
     /** @var int */
     private $id_priority;
+    /** @var string */
+    private $id_priority_ext;
 
     public function __construct() 
     {
@@ -25,10 +27,18 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
     public function jsonSerialize()
     {
         return array(
-            "id"            => $this->id,
-            "title"         => $this->title,
-            "due_date"      => $this->due_date == null ? null : $this->due_date->format('Y-m-d'),
-            "id_priority"   => $this->id_priority,
+            "title"         => [
+                "header" => "Title",
+                "data" => $this->title,
+            ],
+            "due_date"      => [
+                "header" => "Due date",
+                "data" => $this->due_date == null ? null : $this->due_date->format('Y-m-d'),
+            ],
+            "id_priority"   => [
+                "header" => "priority",
+                "data" => $this->id_priority_ext,
+            ],
         );
     }
 

@@ -56,6 +56,12 @@ class CRoute
         }
     }
 
+    public function embed_template(string $filename, array $vars) 
+    {
+        extract($vars);
+        include $filename;
+    }
+
     public function dispatch () 
     {
         switch ($this->action) 
@@ -84,7 +90,12 @@ class CRoute
             case "":
             case "view":
 
-                include "view/template/base.php";
+                $this->embed_template("view/template/base.php",
+                    array(
+                        "module" => $this->module,
+                        "root" => CDefaultCfg::getCfgItem("default_http_root"),
+                        "extra" => $this->extra,
+                    ));
 
                 $request_string = CDefaultCfg::getCfgItem("default_http_root")
                     . "/" . $this->module . "/fetch/";

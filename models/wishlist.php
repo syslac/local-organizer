@@ -10,6 +10,8 @@ class CWishlist implements ITaggable, IDisplayable, JsonSerializable
     /** @var int */
     private $id_for_user;
     /** @var string */
+    private $id_for_user_ext;
+    /** @var string */
     private $item;
     /** @var string */
     private $link;
@@ -17,6 +19,8 @@ class CWishlist implements ITaggable, IDisplayable, JsonSerializable
     private $price;
     /** @var int */
     private $id_priority;
+    /** @var string */
+    private $id_priority_ext;
     /** @var DateTime */
     private $deadline;
 
@@ -31,13 +35,31 @@ class CWishlist implements ITaggable, IDisplayable, JsonSerializable
     public function jsonSerialize()
     {
         return array(
-            "id"            => $this->id,
-            "id_for_user"   => $this->id_for_user,
-            "item"          => $this->item,
-            "link"          => $this->link,
-            "price"         => $this->price,
-            "deadline"      => $this->deadline == null ? null : $this->deadline->format('Y-m-d'),
-            "id_priority"   => $this->id_priority,
+            "id_for_user"   => [
+                "header" => "For",
+                "data" => $this->id_for_user_ext,
+            ],
+            "item"          => [
+                "header" => "item",
+                "data" => $this->item,
+            ],
+            "link"          => [
+                "header" => "link",
+                "data" => $this->link,
+                "link" => $this->link,
+            ],
+            "price"         => [
+                "header" => "price",
+                "data" => $this->price."€",
+            ],
+            "deadline"      => [
+                "header" => "deadline",
+                "data" => $this->deadline == null ? null : $this->deadline->format('Y-m-d'),
+            ],
+            "id_priority"   => [
+                "header" => "priority",
+                "data" => $this->id_priority_ext,
+            ],
         );
 
     }

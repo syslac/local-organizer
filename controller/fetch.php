@@ -9,6 +9,7 @@ class CFetcher
 {
     private $results;
     private $table;
+    private $foreign;
     private $obj;
     private $dbo;
 
@@ -45,6 +46,11 @@ class CFetcher
         }
 
         $this->dbo = $dbHandle;
+
+        if (isset($this->dbo) && isset($this->table))
+        {
+            $this->getForeign();
+        }
     }
 
     public function setConnInfo(string $table, string $obj) 
@@ -53,9 +59,47 @@ class CFetcher
         $this->obj = $obj;
     }
 
+    public function getForeign() 
+    {
+        $stmt = $this->dbo->prepare("
+            SELECT `COLUMN_NAME`, `REFERENCED_TABLE_NAME`, `REFERENCED_COLUMN_NAME` 
+            FROM `information_schema`.`KEY_COLUMN_USAGE` 
+            WHERE `CONSTRAINT_SCHEMA` = ? 
+            AND `TABLE_NAME` = ? 
+            AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL 
+            AND `REFERENCED_TABLE_NAME` IS NOT NULL 
+            AND `REFERENCED_COLUMN_NAME` IS NOT NULL
+        ");
+        $stmt->execute([CDefaultCfg::getCfgItem("db_name"), $this->table]);
+        $this->foreign = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getStaticQuery()
+    {
+        $query = "SELECT A.*";
+        $foreign_counter = 0;
+        foreach ($this->foreign as $join) 
+        {
+            $query .= ", FOREIGN_".$foreign_counter.".name AS ".$join["COLUMN_NAME"]."_ext";
+            $foreign_counter++;
+        }
+        $query .= " FROM ".$this->table." A "; 
+        $foreign_counter = 0;
+        foreach ($this->foreign as $join) 
+        {
+            $query .= "LEFT JOIN ".$join["REFERENCED_TABLE_NAME"]." 
+            FOREIGN_".$foreign_counter." 
+            ON A.".$join["COLUMN_NAME"]." = FOREIGN_".$foreign_counter.".".$join["REFERENCED_COLUMN_NAME"]." ";
+            $foreign_counter++;
+        }
+        return $query;
+    }
+
     public function getLatest(int $limit) 
     {
-        $stmt = $this->dbo->prepare("SELECT * FROM ".$this->table." ORDER BY id DESC LIMIT ?");
+        $query = $this->getStaticQuery()." ORDER BY id DESC LIMIT ?";
+        //var_dump($query);
+        $stmt = $this->dbo->prepare($query);
         $stmt->execute([$limit]);
         $this->results = $stmt->fetchAll(PDO::FETCH_CLASS, $this->obj);
     }
@@ -66,7 +110,7 @@ class CFetcher
         {
             return null;
         }
-        $stmt = $this->dbo->prepare("SELECT * FROM ".$this->table." WHERE ".$column ." = ? LIMIT 0,1");
+        $stmt = $this->dbo->prepare($this->getStaticQuery()." WHERE A.".$column ." = ? LIMIT 0,1");
         $stmt->execute([$value]);
         $this->results = $stmt->fetchAll(PDO::FETCH_CLASS, $this->obj);
         if (sizeof($this->results) > 0) 

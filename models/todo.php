@@ -15,6 +15,8 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
     private $id_priority;
     /** @var string */
     private $id_priority_ext;
+    /** @var string */
+    private $id_tag_mtm;
 
     public function __construct() 
     {
@@ -38,6 +40,10 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
             "id_priority"   => [
                 "header" => "priority",
                 "data" => $this->id_priority_ext,
+            ],
+            "id_tag_mtm"   => [
+                "header" => "tags",
+                "data" => $this->id_tag_mtm,
             ],
         );
     }

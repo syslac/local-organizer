@@ -93,14 +93,14 @@ class CFetcher
             LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` MTM_TO_FOREIGN 
                 ON TABLE_TO_MTM.`TABLE_NAME` = MTM_TO_FOREIGN.`TABLE_NAME`
                 AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` <> MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`
-            WHERE TABLE_TO_MTM.`TABLE_SCHEMA` = 'local_organizer'
-            AND MTM_TO_FOREIGN.`TABLE_SCHEMA` = 'local_organizer'
-            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` = 'lo_modules'
+            WHERE TABLE_TO_MTM.`TABLE_SCHEMA` = ?
+            AND MTM_TO_FOREIGN.`TABLE_SCHEMA` = ?
+            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` = ?
             AND TABLE_TO_MTM.`REFERENCED_TABLE_SCHEMA` IS NOT NULL 
             AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` IS NOT NULL 
             AND TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` IS NOT NULL
         ");
-        $stmt->execute([CDefaultCfg::getCfgItem("db_name"), $this->table]);
+        $stmt->execute([CDefaultCfg::getCfgItem("db_name"), CDefaultCfg::getCfgItem("db_name"), $this->table]);
         $this->mtm = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

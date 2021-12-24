@@ -33,6 +33,8 @@ class CClientSideRequest
         {
             $this->build_success .= '
                 $("#'.$endpoint.'").html(resData);
+                enable_edits();
+                enable_select();
             },';
         }
         else {

@@ -10,10 +10,12 @@ class CFetcher
     private $results;
     private $table;
     private $foreign;
+    private $module;
     private $mtm;
     private $obj;
     private $dbo;
     private $query;
+    private $searchById;
 
     public function __construct($dbHandle, string $module, bool $getForeign = true, bool $getMtm = true) 
     {
@@ -36,11 +38,13 @@ class CFetcher
             }
             else 
             {
+                $this->module = $module;
                 $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
             }
         }
         else 
         {
+            $this->module = "modules";
             $this->setConnInfo(
                 CDefaultCfg::getCfgItem("default_module_table"), 
                 CDefaultCfg::getCfgItem("default_module_class")
@@ -62,6 +66,7 @@ class CFetcher
             }
         }
         $this->populateQuery();
+        $this->searchById = false;
     }
 
     public function setConnInfo(string $table, string $obj) 
@@ -183,16 +188,34 @@ class CFetcher
         $stmt = $this->dbo->prepare($query);
         $stmt->execute([$value]);
         $this->results = $stmt->fetchAll(PDO::FETCH_CLASS, $this->obj);
+        if ($column == "id") 
+        {
+            $this->searchById = true;
+        }
         if (sizeof($this->results) > 0) 
         {
             return $this->results[0];
         }
-        else return [];
+        else return new stdClass();
     }
 
     public function getResults(): string
     {
-        return json_encode($this->results);
+        if ($this->searchById) 
+        {
+            if (sizeof($this->results) > 0)
+            {
+                return json_encode(["mode" => "edit", "module" => $this->module, "data" => $this->results]);
+            }
+            else 
+            {
+                return json_encode(["mode" => "edit", "module" => $this->module, "data" => [new $this->obj]]);
+            }
+        }
+        else 
+        {
+            return json_encode(["mode" => "view", "data" => $this->results]);
+        }
     }
 };
 

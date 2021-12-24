@@ -4,6 +4,8 @@ require_once "controller/default_cfg.php";
 require_once "view/crud.php";
 require_once "view/display.php";
 require_once "controller/fetch.php";
+require_once "controller/editor.php";
+require_once "controller/adder.php";
 require_once "controller/db.php";
 require_once "view/client_side_request.php";
 
@@ -87,6 +89,25 @@ class CRoute
                 echo $ret->getResults();
                 break;
             
+            case "edit":
+                $ret = new CEditor(CDBConfig::getInstance(), $this->module);
+                $ret->setData($_POST);
+                $ret->setCondition($this->extra);
+                $ret->run();
+                $request_string = CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/view/";
+                header("Location: ".$request_string);
+                break;
+
+            case "add":
+                $ret = new CAdder(CDBConfig::getInstance(), $this->module);
+                $ret->setData($_POST);
+                $ret->run();
+                $request_string = CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/view/";
+                header("Location: ".$request_string);
+                break;
+            
             case "":
             case "view":
 
@@ -95,6 +116,7 @@ class CRoute
                         "module" => $this->module,
                         "root" => CDefaultCfg::getCfgItem("default_http_root"),
                         "extra" => $this->extra,
+                        "action" => $this->action,
                     ));
 
                 $request_string = CDefaultCfg::getCfgItem("default_http_root")
@@ -115,7 +137,7 @@ class CRoute
 
                 break;
             case "render":
-                $ui = new CCrudUi(new CTableOutput(), new CRowOutput());
+                $ui = new CCrudUi(new CTableOutput(), new CRowOutput(), new CFormOutput());
 
                 $json_response = file_get_contents("php://input");
                 if ($json_response != null && $json_response != "")
@@ -123,7 +145,14 @@ class CRoute
                     $decoded = json_decode($json_response);
                     if ($decoded != null)
                     {
-                        $ui->render($decoded);
+                        if (!isset($decoded->mode) || $decoded->mode == "view")
+                        {
+                            $ui->render($decoded->data);
+                        }
+                        else if (sizeof($decoded->data) == 1)
+                        {
+                            $ui->renderEdit($decoded->data[0], $decoded->module);
+                        }
                     }
                 }
                 break;

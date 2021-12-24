@@ -29,21 +29,33 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
     public function jsonSerialize()
     {
         return array(
+            "id" => [
+                "header" => "id",
+                "data" => $this->id,
+                "hide" => true,
+                "editable" => false,
+            ],
             "title"         => [
                 "header" => "Title",
                 "data" => $this->title,
+                "edit_data" => $this->title,
             ],
             "due_date"      => [
                 "header" => "Due date",
                 "data" => $this->due_date == null ? null : $this->due_date->format('Y-m-d'),
+                "edit_data" => $this->due_date == null ? null : $this->due_date->format('Y-m-d'),
+                "type" => "date",
             ],
             "id_priority"   => [
                 "header" => "priority",
                 "data" => $this->id_priority_ext,
+                "edit_data" => $this->id_priority,
+                "type" => "external",
             ],
             "id_tag_mtm"   => [
                 "header" => "tags",
                 "data" => $this->id_tag_mtm,
+                "editable" => false,
             ],
         );
     }

@@ -21,10 +21,29 @@ class CModule implements IDisplayable, JsonSerializable
     public function jsonSerialize()
     {
         return array(
+            "id" => [
+                "header" => "id",
+                "data" => $this->id,
+                "hide" => true,
+                "editable" => false,
+            ],
             "module_name"   => [
                 "header" => "Module",
                 "data" => $this->module_name,
+                "edit_data" => $this->module_name,
                 "link" => CDefaultCfg::getCfgItem("default_http_root")."/".$this->module_name."/view",
+            ],
+            "module_table"   => [
+                "header" => "Module table",
+                "data" => $this->module_table,
+                "edit_data" => $this->module_table,
+                "hide" => true,
+            ],
+            "module_class"   => [
+                "header" => "Module class",
+                "data" => $this->module_class,
+                "edit_data" => $this->module_class,
+                "hide" => true,
             ],
         );
     }

@@ -75,7 +75,7 @@ class CFetcher
         $stmt = $this->dbo->prepare("
             SELECT `COLUMN_NAME`, `REFERENCED_TABLE_NAME`, `REFERENCED_COLUMN_NAME` 
             FROM `information_schema`.`KEY_COLUMN_USAGE` 
-            WHERE `CONSTRAINT_SCHEMA` = ? 
+            WHERE `TABLE_SCHEMA` = ? 
             AND `TABLE_NAME` = ? 
             AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL 
             AND `REFERENCED_TABLE_NAME` IS NOT NULL 
@@ -93,8 +93,9 @@ class CFetcher
             LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` MTM_TO_FOREIGN 
                 ON TABLE_TO_MTM.`TABLE_NAME` = MTM_TO_FOREIGN.`TABLE_NAME`
                 AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` <> MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`
-            WHERE TABLE_TO_MTM.`CONSTRAINT_SCHEMA` = ? 
-            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` = ? 
+            WHERE TABLE_TO_MTM.`TABLE_SCHEMA` = 'local_organizer'
+            AND MTM_TO_FOREIGN.`TABLE_SCHEMA` = 'local_organizer'
+            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` = 'lo_modules'
             AND TABLE_TO_MTM.`REFERENCED_TABLE_SCHEMA` IS NOT NULL 
             AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` IS NOT NULL 
             AND TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` IS NOT NULL

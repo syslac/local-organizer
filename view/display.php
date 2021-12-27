@@ -1,6 +1,7 @@
 <?php
 
 require_once "view/base/view_base.php";
+require_once "controller/fetch.php";
 
 class CRowOutput implements IDisplayItem
 {
@@ -122,6 +123,44 @@ class CFormDate implements IDisplayColumn
     }
 }
 
+class CFormExternalSelect implements IDisplayColumn
+{
+    private $opt;
+
+    public function __construct(string $ext_module) 
+    {
+        $ret = new CFetcher(CDBConfig::getInstance(), '', false, false);
+        $ret->setConnInfo($ext_module, '');
+        $ret->populateQuery();
+        $ret->getExtAssoc();
+        foreach($ret->getRawResults() as $it)
+        {
+            $this->opt[$it['id']] = $it['name'];
+        }
+    }
+
+    public function getColumnEditForm(string $val, string $name, string $header = null) : string
+    {
+        if ($header == null)
+        {
+            $header = $name;
+        } 
+        $ret = "<div class=\"input_unit\"><div class=\"field\">".$header."</div><select name=\"".$name."\">";
+        foreach ($this->opt as $id => $name) 
+        {
+            $ret .= "<option value=\"".$id."\"";
+            if ($id == $val) 
+            {
+                $ret .= " selected=\"selected\" ";
+            }
+            $ret .= ">".$name."</option>";
+
+        }
+        $ret .= "</select></div>";
+        return $ret;
+    }
+}
+
 class CFormOutput implements IDisplayForm
 {
     public function getObjectEditForm(object $item, string $module) : string
@@ -156,7 +195,7 @@ class CFormOutput implements IDisplayForm
             {
                 continue;
             }
-            $form_item = $this->getInputHandlingClass($metadata->type);
+            $form_item = $this->getInputHandlingClass($metadata->type, $metadata->ext_module);
             if ($form_item == null)
             {
                 continue; // type handling not implemented yet
@@ -173,7 +212,7 @@ class CFormOutput implements IDisplayForm
         return $ret_val;
     }
 
-    private function getInputHandlingClass(?string $type) : ?IDisplayColumn
+    private function getInputHandlingClass(?string $type, ?string $ext_module = null) : ?IDisplayColumn
     {
         if ($type == null
         || $type == ""
@@ -183,7 +222,14 @@ class CFormOutput implements IDisplayForm
         }
         else if ($type == "external")
         {
-            return new CFormInput();
+            if (isset($ext_module))
+            {
+                return new CFormExternalSelect($ext_module);
+            }
+            else 
+            {
+                return new CFormInput();
+            }
         }
         else if ($type == "date")
         {

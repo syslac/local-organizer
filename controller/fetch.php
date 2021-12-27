@@ -32,9 +32,9 @@ class CFetcher
                 $module
             );
 
-            if ($found_module == null) 
+            if ($found_module == null || $found_module == new stdClass()) 
             {
-                echo "Warning: module $module not found!";
+                //echo "Warning: module $module not found!";
             }
             else 
             {
@@ -173,6 +173,18 @@ class CFetcher
         $this->results = $stmt->fetchAll(PDO::FETCH_CLASS, $this->obj);
     }
 
+    public function getExtAssoc() 
+    {
+        $query = $this->query["select"]
+            .$this->query["join"]
+            .$this->query["where"]
+            .$this->query["group"]
+            ."";
+        $stmt = $this->dbo->prepare($query);
+        $stmt->execute();
+        $this->results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function searchByColumn(string $column, string $value) : ?object
     {
         if (!CDBConfig::isValidColumn($this->obj, $column)) 
@@ -197,6 +209,11 @@ class CFetcher
             return $this->results[0];
         }
         else return new stdClass();
+    }
+
+    public function getRawResults(): array
+    {
+        return $this->results;
     }
 
     public function getResults(): string

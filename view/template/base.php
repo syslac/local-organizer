@@ -35,6 +35,11 @@ form.object_edit input
     position: absolute; 
     left: 20%;
 }
+form.object_edit select 
+{
+    position: absolute; 
+    left: 20%;
+}
 form.object_edit .field 
 {
     font-weight: bold;

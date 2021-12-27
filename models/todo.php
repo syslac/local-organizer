@@ -51,6 +51,7 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
                 "data" => $this->id_priority_ext,
                 "edit_data" => $this->id_priority,
                 "type" => "external",
+                "ext_module" => "lo_priority",
             ],
             "id_tag_mtm"   => [
                 "header" => "tags",

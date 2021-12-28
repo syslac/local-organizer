@@ -9,6 +9,7 @@ class CRowOutput implements IDisplayItem
     {
         $ret_val = "";
         $ret_val .= "<td class=\"edit\">✎</td>";
+        $ret_val .= "<td class=\"delete\">❌</td>";
         foreach($item as $key => $fld)
         {
             $ret_val .= "<td class=\"";
@@ -23,9 +24,9 @@ class CRowOutput implements IDisplayItem
             $ret_val .= "\">";
             if (isset($fld->link)) 
             {
-                $ret_val .= "<a href=\"".$fld->link."\">";
+                $ret_val .= "<a href=\"".htmlspecialchars($fld->link)."\">";
             }
-            $ret_val .= $fld->data;
+            $ret_val .= htmlspecialchars($fld->data);
             if (isset($fld->link)) 
             {
                 $ret_val .= "</a>";
@@ -41,7 +42,7 @@ class CLiOutput implements IDisplayItem
     public function getItemHtml(object $item): string
     {
         return vsprintf(str_repeat("%s|", sizeof($item)), 
-        array_map(function ($a) { return $a->data; }, array_values($item)));
+        array_map(function ($a) { return htmlspecialchars($a->data); }, array_values($item)));
     }
 }
 
@@ -56,12 +57,13 @@ class CTableOutput implements IDisplaySet
         {
             $item = array_map(function ($v) { return [$v->header, $v->hide]; }, get_object_vars($set[0]));
             $ret_val .= "<th>&nbsp;</th>";
+            $ret_val .= "<th>&nbsp;</th>";
             foreach ($item as $header) 
             {
                 if (!$header[1]) 
                 {
                     $ret_val .= "<th class=\"\">";
-                    $ret_val .= $header[0];
+                    $ret_val .= htmlspecialchars($header[0]);
                     $ret_val .= "</th>";
                 }
             }
@@ -107,7 +109,10 @@ class CFormInput implements IDisplayColumn
         {
             $header = $name;
         } 
-        return "<div class=\"input_unit\"><div class=\"field\">".$header."</div><input type=\"text\" name=\"".$name."\" value=\"".$val."\" /></div>";
+        return "<div class=\"input_unit\">
+        <div class=\"field\">".htmlspecialchars($header)."</div>
+        <input type=\"text\" name=\"".htmlspecialchars($name)."\" value=\"".htmlspecialchars($val)."\" />
+        </div>";
     }
 }
 
@@ -119,7 +124,10 @@ class CFormDate implements IDisplayColumn
         {
             $header = $name;
         } 
-        return "<div class=\"input_unit\"><div class=\"field\">".$header."</div><input type=\"date\" name=\"".$name."\" value=\"".$val."\" /></div>";
+        return "<div class=\"input_unit\">
+        <div class=\"field\">".htmlspecialchars($header)."</div>
+        <input type=\"date\" name=\"".htmlspecialchars($name)."\" value=\"".htmlspecialchars($val)."\" />
+        </div>";
     }
 }
 
@@ -145,15 +153,17 @@ class CFormExternalSelect implements IDisplayColumn
         {
             $header = $name;
         } 
-        $ret = "<div class=\"input_unit\"><div class=\"field\">".$header."</div><select name=\"".$name."\">";
+        $ret = "<div class=\"input_unit\">
+        <div class=\"field\">".htmlspecialchars($header)."</div>
+        <select name=\"".htmlspecialchars($name)."\">";
         foreach ($this->opt as $id => $name) 
         {
-            $ret .= "<option value=\"".$id."\"";
+            $ret .= "<option value=\"".htmlspecialchars($id)."\"";
             if ($id == $val) 
             {
                 $ret .= " selected=\"selected\" ";
             }
-            $ret .= ">".$name."</option>";
+            $ret .= ">".htmlspecialchars($name)."</option>";
 
         }
         $ret .= "</select></div>";
@@ -179,13 +189,13 @@ class CFormOutput implements IDisplayForm
         {
             $ret_val .= "<form method=\"post\" class=\"object_edit\" action=\""
                 .CDefaultCfg::getCfgItem("default_http_root")."/"
-                .$module."/add/\">";
+                .htmlspecialchars($module)."/add/\">";
         }
         else 
         {
             $ret_val .= "<form method=\"post\" class=\"object_edit\" action=\""
                 .CDefaultCfg::getCfgItem("default_http_root")."/"
-                .$module."/edit/id/".$id_obj
+                .htmlspecialchars($module)."/edit/id/".htmlspecialchars($id_obj)
                 ."\">";
         }
 

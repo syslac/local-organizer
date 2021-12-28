@@ -1,6 +1,6 @@
 <?php
 
-class CAdder 
+class CDeleter 
 {
     private $table;
     private $dbo;
@@ -46,51 +46,32 @@ class CAdder
 
     public function setConnInfo(string $table, string $obj) 
     {
-        if (CDBConfig::isValidTable($table))
+        if (CDBConfig::isValidTable($table)) 
         {
             $this->table = $table;
-            $this->query["insert"] = "INSERT INTO ".$table;
+            $this->query["delete"] = "DELETE FROM ".$table;
         }
     }
 
-    public function setData(array $data) 
+    public function setCondition(?array $id) 
     {
-        $cnt = 0;
-        $fields = "";
-        $places = "";
-        $all_fields_valid = true;
-        foreach ($data as $fld => $val) 
+        if (sizeof($id) == 1) 
         {
-            $all_fields_valid = $all_fields_valid && CDBConfig::isValidColumn($this->table, $fld);
-            if ($val == '') 
+            foreach($id as $key => $val)
             {
-                $val = null;
+                if (CDBConfig::isValidColumn($this->table, $key) && $key == "id") 
+                {
+                    $this->query["where"] = " WHERE ".$key." = ?";
+                    array_push($this->plH, $val);
+                }
             }
-            array_push($this->plH, $val);
-            if ($cnt == 0) 
-            {
-                $fields .= " (".$fld."";
-                $places .= " (?";
-            }
-            else 
-            {
-                $fields .= ", ".$fld."";
-                $places .= ", ?";
-            }
-            $cnt++;
-        }
-        $fields .= ")";
-        $places .= ")";
-        if ($all_fields_valid) 
-        {
-            $this->query["set"] = $fields." VALUES ".$places;
         }
     }
 
     public function run() 
     {
-        $query = $this->query["insert"]
-            .$this->query["set"];
+        $query = $this->query["delete"]
+            .$this->query["where"];
         $stmt = $this->dbo->prepare($query);
         $stmt->execute($this->plH);
 

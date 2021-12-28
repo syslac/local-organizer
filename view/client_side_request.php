@@ -35,6 +35,7 @@ class CClientSideRequest
                 $("#'.$endpoint.'").html(resData);
                 enable_edits();
                 enable_select();
+                enable_deletes();
             },';
         }
         else {

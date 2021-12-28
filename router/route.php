@@ -6,6 +6,7 @@ require_once "view/display.php";
 require_once "controller/fetch.php";
 require_once "controller/editor.php";
 require_once "controller/adder.php";
+require_once "controller/deleter.php";
 require_once "controller/db.php";
 require_once "view/client_side_request.php";
 
@@ -102,6 +103,15 @@ class CRoute
             case "add":
                 $ret = new CAdder(CDBConfig::getInstance(), $this->module);
                 $ret->setData($_POST);
+                $ret->run();
+                $request_string = CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/view/";
+                header("Location: ".$request_string);
+                break;
+
+            case "delete":
+                $ret = new CDeleter(CDBConfig::getInstance(), $this->module);
+                $ret->setCondition($this->extra);
                 $ret->run();
                 $request_string = CDefaultCfg::getCfgItem("default_http_root")
                     . "/" . $this->module . "/view/";

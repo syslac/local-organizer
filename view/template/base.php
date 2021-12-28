@@ -21,6 +21,10 @@ body
 {
     width: 20px;
 }
+.delete 
+{
+    width: 20px;
+}
 .hidden 
 {
     display: none;
@@ -108,6 +112,14 @@ form.object_edit .enter
             {
                 var idItem = $(this).children('.id').text();
                 document.location = '<?php echo $root."/".$module; ?>/view/id/'+idItem;
+            });
+        }
+        function enable_deletes() 
+        {
+            $('#main_results_table .delete').click(function () 
+            {
+                var idItem = $(this).next('.id').text();
+                document.location = '<?php echo $root."/".$module; ?>/delete/id/'+idItem;
             });
         }
     </script>

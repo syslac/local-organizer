@@ -71,8 +71,11 @@ class CFetcher
 
     public function setConnInfo(string $table, string $obj) 
     {
-        $this->table = $table;
-        $this->obj = $obj;
+        if (CDBConfig::isValidTable($table)) 
+        {
+            $this->table = $table;
+            $this->obj = $obj;
+        }
     }
 
     public function getForeign() 
@@ -93,7 +96,12 @@ class CFetcher
     public function getManyToMany() 
     {
         $stmt = $this->dbo->prepare("
-            SELECT TABLE_TO_MTM.`COLUMN_NAME` AS MTM_ID, TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` AS MTM_ORIG_ID, MTM_TO_FOREIGN.`TABLE_NAME`, MTM_TO_FOREIGN.`COLUMN_NAME`, MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`, MTM_TO_FOREIGN.`REFERENCED_COLUMN_NAME` 
+            SELECT TABLE_TO_MTM.`COLUMN_NAME` AS MTM_ID, 
+            TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` AS MTM_ORIG_ID, 
+            MTM_TO_FOREIGN.`TABLE_NAME`, 
+            MTM_TO_FOREIGN.`COLUMN_NAME`, 
+            MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`, 
+            MTM_TO_FOREIGN.`REFERENCED_COLUMN_NAME` 
             FROM `information_schema`.`KEY_COLUMN_USAGE` TABLE_TO_MTM
             LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` MTM_TO_FOREIGN 
                 ON TABLE_TO_MTM.`TABLE_NAME` = MTM_TO_FOREIGN.`TABLE_NAME`
@@ -187,7 +195,7 @@ class CFetcher
 
     public function searchByColumn(string $column, string $value) : ?object
     {
-        if (!CDBConfig::isValidColumn($this->obj, $column)) 
+        if (!CDBConfig::isValidColumn($this->table, $column)) 
         {
             return null;
         }

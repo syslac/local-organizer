@@ -46,16 +46,21 @@ class CEditor
 
     public function setConnInfo(string $table, string $obj) 
     {
-        $this->table = $table;
-        $this->query["update"] = "UPDATE ".$table;
+        if (CDBConfig::isValidTable($table)) 
+        {
+            $this->table = $table;
+            $this->query["update"] = "UPDATE ".$table;
+        }
     }
 
     public function setData(array $data) 
     {
         $this->query["set"] = " SET ";
         $cnt = 0;
+        $all_fields_valid = true;
         foreach ($data as $fld => $val) 
         {
+            $all_fields_valid = $all_fields_valid && CDBConfig::isValidColumn($this->table, $fld);
             if ($val == '') 
             {
                 $val = null;
@@ -71,6 +76,10 @@ class CEditor
             }
             $cnt++;
         }
+        if (!$all_fields_valid) 
+        {
+            unset($this->query["set"]);
+        }
     }
 
     public function setCondition(?array $id) 
@@ -79,8 +88,11 @@ class CEditor
         {
             foreach($id as $key => $val)
             {
-                $this->query["where"] = " WHERE ".$key." = ?";
-                array_push($this->plH, $val);
+                if (CDBConfig::isValidColumn($this->table, $key)) 
+                {
+                    $this->query["where"] = " WHERE ".$key." = ?";
+                    array_push($this->plH, $val);
+                }
             }
         }
     }
@@ -90,7 +102,6 @@ class CEditor
         $query = $this->query["update"]
             .$this->query["set"]
             .$this->query["where"];
-        //var_dump($query);
         $stmt = $this->dbo->prepare($query);
         $stmt->execute($this->plH);
 

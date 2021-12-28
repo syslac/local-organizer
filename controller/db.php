@@ -8,21 +8,35 @@ class CDBConfig
     private static $dbObject = null;
     
     private static $validCols = array(
-        "CWishlist" => array(
+        "lo_wishlist" => array(
             "id",
             "id_for_user",
             "item",
+            "link",
+            "price",
+            "deadline",
             "id_priority",
         ),
-        "CTodo" => array(
+        "lo_todo" => array(
             "id",
             "title",
             "due_date",
             "id_priority",
         ),
-        "CModule" => array(
+        "lo_modules" => array(
             "id",
             "module_name",
+            "module_table",
+            "module_class",
+        ),
+        "lo_user" => array(
+            "id",
+            "name",
+        ),
+        "lo_priority" => array(
+            "id",
+            "name",
+            "priority_num",
         )
     );
 
@@ -64,6 +78,11 @@ class CDBConfig
             return false;
         }
         return in_array($column, self::$validCols[$module]);
+    }
+
+    public function isValidTable($module) 
+    {
+        return array_key_exists($module, self::$validCols); 
     }
 }
 

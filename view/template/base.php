@@ -5,7 +5,7 @@
         </title>
     </head>
 
-    <link href="/js/bootstrap.css" rel="stylesheet" />
+    <link href="<?php echo str_replace("/local_organizer", "", $root); ?>/js/bootstrap.css" rel="stylesheet" />
     </script>
 
 <style>
@@ -95,14 +95,14 @@ form.object_edit .enter
     }
 ?>
 
-    <script src="/js/jquery-3.6.0.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="<?php echo str_replace("/local_organizer", "", $root); ?>/js/jquery-3.6.0.min.js"></script>
+    <script src="<?php echo str_replace("/local_organizer", "", $root); ?>/js/bootstrap.min.js"></script>
     <script>
         function enable_edits() 
         {
             $('#main_results_table .edit').click(function () 
             {
-                var idItem = $(this).next('.id').text();
+                var idItem = $(this).nextAll('.id').text();
                 document.location = '<?php echo $root."/".$module; ?>/view/id/'+idItem;
             });
         }

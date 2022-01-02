@@ -5,8 +5,12 @@ require_once "controller/fetch.php";
 
 class CRowOutput implements IDisplayItem
 {
-    public function getItemHtml(object $item): string
+    public function getItemHtml(?object $item): string
     {
+        if ($item == null)
+        {
+            return "";
+        }
         $ret_val = "";
         $ret_val .= "<td class=\"edit\">✎</td>";
         $ret_val .= "<td class=\"delete\">❌</td>";
@@ -39,10 +43,15 @@ class CRowOutput implements IDisplayItem
 
 class CLiOutput implements IDisplayItem
 {
-    public function getItemHtml(object $item): string
+    public function getItemHtml(?object $item): string
     {
-        return vsprintf(str_repeat("%s|", sizeof($item)), 
-        array_map(function ($a) { return htmlspecialchars($a->data); }, array_values($item)));
+        if ($item === null) 
+        {
+            return "";
+        }
+        $cast_item = (array) $item;
+        return vsprintf(str_repeat("%s|", sizeof($cast_item)), 
+        array_map(function ($a) { return htmlspecialchars($a); }, array_values($cast_item)));
     }
 }
 

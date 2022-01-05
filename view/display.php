@@ -51,7 +51,7 @@ class CLiOutput implements IDisplayItem
         }
         $cast_item = (array) $item;
         return vsprintf(str_repeat("%s|", sizeof($cast_item)), 
-        array_map(function ($a) { return htmlspecialchars($a); }, array_values($cast_item)));
+        array_map(function ($a) { return htmlspecialchars($a->data); }, array_values($cast_item)));
     }
 }
 
@@ -62,9 +62,9 @@ class CTableOutput implements IDisplaySet
         $ret_val = "<table class=\"table\">
         <thead class=\"table-dark\">
             <tr>";
-        if (sizeof($set > 0)) 
+        if (is_array($set) && sizeof($set) > 0) 
         {
-            $item = array_map(function ($v) { return [$v->header, $v->hide]; }, get_object_vars($set[0]));
+            $item = array_map(function ($v) { return [$v->header, isset($v->hide) ? $v->hide : false]; }, get_object_vars($set[0]));
             $ret_val .= "<th>&nbsp;</th>";
             $ret_val .= "<th>&nbsp;</th>";
             foreach ($item as $header) 

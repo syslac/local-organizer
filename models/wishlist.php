@@ -1,9 +1,6 @@
 <?php
 
-require_once "models/base/model_base.php";
-require_once "view/base/view_base.php";
-
-class CWishlist implements ITaggable, IDisplayable, JsonSerializable
+class CWishlist implements JsonSerializable
 {
     /** @var int */
     private $id;
@@ -63,7 +60,7 @@ class CWishlist implements ITaggable, IDisplayable, JsonSerializable
             ],
             "price"         => [
                 "header" => "price",
-                "data" => $this->price."€",
+                "data" => $this->price == null ? null : $this->price."€",
                 "edit_data" => $this->price,
             ],
             "deadline"      => [
@@ -118,32 +115,6 @@ class CWishlist implements ITaggable, IDisplayable, JsonSerializable
         $this->deadline = $d;
     }
 
-    public function addTags(array $tags) 
-    {
-        foreach($tags as $tag) 
-        {
-            echo $tag;
-        }
-    }
-
-    public function getTags() : array
-    {
-        return [];
-    }
-
-    public function getDisplayableFormat() : string 
-    {
-        return "%s (for %d) [%d]"; 
-    }
-
-    public function getDisplayableFields() : array
-    {
-        return [
-            $this->item,
-            $this->id_for_user,
-            $this->id_priority,
-        ];
-    }
 };
 
 ?>

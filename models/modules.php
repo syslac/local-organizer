@@ -1,9 +1,6 @@
 <?php
 
-require_once "models/base/model_base.php";
-require_once "view/base/view_base.php";
-
-class CModule implements IDisplayable, JsonSerializable
+class CModule implements JsonSerializable
 {
     /** @var int */
     private $id;
@@ -13,9 +10,26 @@ class CModule implements IDisplayable, JsonSerializable
     private $module_table;
     /** @var string */
     private $module_class;
+    /** @var string */
+    private $http_root;
 
     public function __construct() 
     {
+        if (class_exists("CDefaultCfg"))
+        {
+            $this->http_root = CDefaultCfg::getCfgItem("default_http_root");
+        }
+        else 
+        {
+            $this->http_root = "/";
+        }
+    }
+
+    // Enable setting it outside of constructor in particular cases 
+    // where cfg is not available at construction time, e.g. testing
+    public function setHttpRoot(string $root) 
+    {
+        $this->http_root = $root;
     }
 
     public function jsonSerialize()
@@ -31,7 +45,7 @@ class CModule implements IDisplayable, JsonSerializable
                 "header" => "Module",
                 "data" => $this->module_name,
                 "edit_data" => $this->module_name,
-                "link" => CDefaultCfg::getCfgItem("default_http_root")."/".$this->module_name."/view",
+                "link" => $this->http_root."/".$this->module_name."/view",
             ],
             "module_table"   => [
                 "header" => "Module table",
@@ -76,18 +90,6 @@ class CModule implements IDisplayable, JsonSerializable
     public function getModuleClass() : string
     {
         return $this->module_class;
-    }
-
-    public function getDisplayableFormat() : string 
-    {
-        return "%s"; 
-    }
-
-    public function getDisplayableFields() : array
-    {
-        return [
-            $this->module_name
-        ];
     }
 };
 

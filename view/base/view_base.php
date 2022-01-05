@@ -1,11 +1,5 @@
 <?php
 
-interface IDisplayable
-{
-    public function getDisplayableFields() : array;
-    public function getDisplayableFormat(): string;
-};
-
 interface IDisplayItem 
 {
     public function getItemHtml(object $item): string;

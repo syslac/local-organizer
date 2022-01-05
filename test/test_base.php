@@ -30,12 +30,95 @@ class CBaseTest implements ITestable
 
     public static function assertTrue(bool $expr) : bool
     {
-        return $expr;
+        if ($expr) 
+        {
+            return (bool) $expr;
+        }
+        else 
+        {
+            var_dump($expr);
+            return (bool) $expr;
+        }
     }
 
     public static function assertEqual($a, $b) : bool
     {
-        return $a === $b;
+        if ($a === $b) 
+        {
+            return true;
+        }
+        else 
+        {
+            var_dump($a);
+            var_dump($b);
+            return false;
+        }
+    }
+
+    public static function assertDifferent($a, $b) : bool
+    {
+        if ($a !== $b) 
+        {
+            return true;
+        }
+        else 
+        {
+            var_dump($a);
+            var_dump($b);
+            return false;
+        }
+    }
+
+
+    public static function assertContains(string $a, string $b) : bool
+    {
+        if (strpos($a, $b) !== false)
+        {
+            return true;
+        }
+        else 
+        {
+            var_dump($a);
+            var_dump($b);
+            return false;
+        }
+    }
+
+    public static function assertCountEqual(string $a, string $b, int $c) : bool
+    {
+        $offset = 0; 
+        $found = 0;
+        while ($found < $c)
+        {
+            if (strpos($a, $b, $offset) === false)
+            {
+                var_dump($a);
+                var_dump($b);
+                var_dump($c);
+                var_dump($found);
+                return false;
+            }
+            $offset = strpos($a, $b, $offset) + 1;
+            $found++;
+        }
+        return true;
+    }
+
+    public static function assertContainsInOrder(string $a, string $b, string $c) : bool
+    {
+        $findB = strpos($a, $b);
+        $findC = strpos($a, $c);
+        if ($findB !== false && $findC !== false && $findB < $findC) 
+        {
+            return true;
+        }
+        else 
+        {
+            var_dump($a);
+            var_dump($b);
+            var_dump($c);
+            return false;
+        }
     }
 
     public function run() : bool 

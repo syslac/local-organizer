@@ -1,9 +1,6 @@
 <?php
 
-require_once "models/base/model_base.php";
-require_once "view/base/view_base.php";
-
-class CTodo implements ITaggable, IDisplayable, JsonSerializable
+class CTodo implements JsonSerializable
 {
     /** @var int */
     private $id;
@@ -74,33 +71,6 @@ class CTodo implements ITaggable, IDisplayable, JsonSerializable
     public function setIdPriority(int $p) 
     {
         $this->id_priority = $p;
-    }
-
-    public function addTags(array $tags) 
-    {
-        foreach($tags as $tag) 
-        {
-            echo $tag;
-        }
-    }
-
-    public function getTags() : array
-    {
-        return [];
-    }
-
-    public function getDisplayableFormat() : string 
-    {
-        return "[%d] %s (%s)"; 
-    }
-
-    public function getDisplayableFields() : array
-    {
-        return [
-            $this->id_priority,
-            $this->title,
-            $this->due_date == null ? '' : $this->due_date->format('Y-m-d'),
-        ];
     }
 };
 

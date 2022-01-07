@@ -21,9 +21,19 @@ class CRowOutput implements IDisplayItem
             {
                 $ret_val .= " hidden";
             }
-            if (isset($fld->header) && $fld->header == "id") 
+            if (isset($fld->header))
             {
-                $ret_val .= " id";
+                switch ($fld->header) 
+                {
+                    case "id":
+                        $ret_val .= " id";
+                        break;
+                    case "is_done":
+                        $ret_val .= " done";
+                        break;
+                    default:
+                        break;
+                }
             }
             $ret_val .= "\">";
             if (isset($fld->link)) 

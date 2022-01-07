@@ -15,12 +15,14 @@ class CDBConfig
             "link",
             "price",
             "deadline",
+            "bought",
             "id_priority",
         ),
         "lo_todo" => array(
             "id",
             "title",
             "due_date",
+            "done",
             "id_priority",
         ),
         "lo_modules" => array(
@@ -38,6 +40,11 @@ class CDBConfig
             "name",
             "priority_num",
         )
+    );
+
+    private static $doneCols = array(
+        "lo_todo" => "done",
+        "lo_wishlist" => "bought",
     );
 
     private function __construct() 
@@ -83,6 +90,16 @@ class CDBConfig
     public function isValidTable($module) 
     {
         return array_key_exists($module, self::$validCols); 
+    }
+
+    public function hasDoneColumn($module)
+    {
+        return array_key_exists($module, self::$doneCols); 
+    }
+
+    public function getDoneColumn($module)
+    {
+        return self::$doneCols[$module]; 
     }
 }
 

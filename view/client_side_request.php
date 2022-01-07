@@ -36,6 +36,7 @@ class CClientSideRequest
                 enable_edits();
                 enable_select();
                 enable_deletes();
+                compute_dones();
             },';
         }
         else {

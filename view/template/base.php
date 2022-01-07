@@ -69,6 +69,16 @@ form.object_edit .enter
     outline: none;
     text-decoration: none;
 }
+tr.done 
+{
+    text-decoration: line-through;
+    background-color: #555555;
+    color: white;
+}
+tr.done a
+{
+    color: #99ddff;
+}
 </style>
 
     <body>
@@ -120,6 +130,17 @@ form.object_edit .enter
             {
                 var idItem = $(this).next('.id').text();
                 document.location = '<?php echo $root."/".$module; ?>/delete/id/'+idItem;
+            });
+        }
+        function compute_dones() 
+        {
+            $('td.done').each(function ()
+            {
+                var val = $(this).text();
+                if (val == '1') 
+                {
+                    $(this).parent().addClass('done');
+                }
             });
         }
     </script>

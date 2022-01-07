@@ -20,14 +20,27 @@ class CWishlist implements JsonSerializable
     private $id_priority_ext;
     /** @var DateTime */
     private $deadline;
+    /** @var DateTime */
+    private $bought;
     /** @var string */
     private $id_tag_mtm;
+    /** @var bool */
+    private $is_done;
 
     public function __construct() 
     {
         if ($this->deadline != '' && $this->deadline != null) 
         {
             $this->deadline = DateTime::createFromFormat('Y-m-d', $this->deadline);
+        }
+        if ($this->bought != '' && $this->bought != null) 
+        {
+            $this->bought = DateTime::createFromFormat('Y-m-d', $this->bought);
+            $this->is_done = true;
+        }
+        else 
+        {
+            $this->is_done = false;
         }
     }
 
@@ -69,12 +82,24 @@ class CWishlist implements JsonSerializable
                 "edit_data" => $this->deadline == null ? null : $this->deadline->format('Y-m-d'),
                 "type" => "date",
             ],
+            "bought"      => [
+                "header" => "bought",
+                "data" => $this->bought == null ? null : $this->bought->format('Y-m-d'),
+                "edit_data" => $this->bought == null ? null : $this->bought->format('Y-m-d'),
+                "type" => "date",
+            ],
             "id_priority"   => [
                 "header" => "priority",
                 "data" => $this->id_priority_ext,
                 "edit_data" => $this->id_priority,
                 "type" => "external",
                 "ext_module" => "lo_priority",
+            ],
+            "is_done" => [
+                "header" => "is_done",
+                "data" => $this->is_done,
+                "hide" => true,
+                "editable" => false,
             ],
             "id_tag_mtm"   => [
                 "header" => "tags",

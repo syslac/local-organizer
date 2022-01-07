@@ -119,7 +119,20 @@ class CFetcher
 
     public function populateQuery()
     {
+        $q_order = "";
         $q_select = "SELECT A.*";
+        if (
+            CDBConfig::hasDoneColumn($this->table)
+            && CDBConfig::isValidColumn($this->table, CDBConfig::getDoneColumn($this->table))
+        )
+        {
+            $q_select .= ", IFNULL(A.".CDBConfig::getDoneColumn($this->table).", ADDDATE(NOW(), INTERVAL 1 DAY)) AS doneSortable ";
+            $q_order = " ORDER BY doneSortable DESC, A.id DESC";
+        }
+        else 
+        {
+            $q_order = " ORDER BY A.id DESC ";
+        }
         $foreign_counter = 0;
         foreach ($this->foreign as $join) 
         {
@@ -174,7 +187,8 @@ class CFetcher
             .$this->query["join"]
             .$this->query["where"]
             .$this->query["group"]
-            ." ORDER BY A.id DESC LIMIT ?";
+            .$this->query["order"]
+            ." LIMIT ?";
         //var_dump($query);
         $stmt = $this->dbo->prepare($query);
         $stmt->execute([$limit]);

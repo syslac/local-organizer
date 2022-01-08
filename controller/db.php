@@ -39,12 +39,36 @@ class CDBConfig
             "id",
             "name",
             "priority_num",
-        )
+        ),
+        "lo_tags" => array(
+            "id",
+            "name",
+        ),
+        "lo_bookmarks" => array(
+            "id",
+            "name",
+            "link",
+        ),
+        "lo_wishlist_tags" => array(
+            "id",
+            "id_wishlist",
+            "id_tag",
+        ),
+        "lo_todo_tags" => array(
+            "id",
+            "id_todo",
+            "id_tag",
+        ),
     );
 
     private static $doneCols = array(
         "lo_todo" => "done",
         "lo_wishlist" => "bought",
+    );
+
+    private static $skipMtm = array(
+        "lo_tags",
+        "lo_bookmarks",
     );
 
     private function __construct() 
@@ -101,6 +125,12 @@ class CDBConfig
     {
         return self::$doneCols[$module]; 
     }
+
+    public function doSkipMtm($module)
+    {
+        return array_search($module, self::$skipMtm) !== false; 
+    }
+
 }
 
 ?>

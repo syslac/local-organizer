@@ -67,7 +67,7 @@ class CWishlist implements JsonSerializable
             ],
             "link"          => [
                 "header" => "link",
-                "data" => $this->link,
+                "data" => strlen($this->link) < 30 ? $this->link : substr($this->link, 0, 30)." [...]",
                 "edit_data" => $this->link,
                 "link" => $this->link,
             ],

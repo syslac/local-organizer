@@ -109,6 +109,16 @@ class CRoute
                 header("Location: ".$request_string);
                 break;
 
+            case "add_mtm":
+                $ret = new CAdder(CDBConfig::getInstance(), $_POST["table"], true);
+                unset($_POST["table"]);
+                $ret->setData($_POST);
+                $ret->run();
+                $request_string = CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/view/";
+                header("Location: ".$request_string);
+                break;
+
             case "delete":
                 $ret = new CDeleter(CDBConfig::getInstance(), $this->module);
                 $ret->setCondition($this->extra);

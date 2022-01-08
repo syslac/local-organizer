@@ -25,6 +25,10 @@ body
 {
     width: 20px;
 }
+.add_tag 
+{
+    width: 20px;
+}
 .hidden 
 {
     display: none;
@@ -167,6 +171,43 @@ tr.done a
                         .text(t)
                         .appendTo($(this));
                 })
+            });
+            $('td.add_tag').each(function ()
+            {
+                if ($(this).parent('tr').children('td.mtm').length <= 0) 
+                {
+                    $(this).html('');
+                    return;
+                }
+                $(this).click(function() {
+                    $(this).unbind('click');
+                    $(this).text('');
+                    var form = $('<form>')
+                        .attr('action', '<?php echo $root."/".$module; ?>/add_mtm/')
+                        .attr('method', 'POST');
+                    $(this).append(form);
+                    $(this).find('form').html('<?php echo str_replace(
+                        array("\n", "\r"), 
+                        "", 
+                        (new CFormExternalSelect('lo_tags'))
+                            ->getColumnEditForm(0, 'id_tag', 'Tag')
+                        ); 
+                        ?>');
+                    $(this).find('form').append($('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', 'id_<?php echo strtolower($module); ?>')
+                        .attr('value', $(this).closest('tr').find('td.id').text())
+                    );
+                    $(this).find('form').append($('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', 'table')
+                        .attr('value', 'lo_<?php echo strtolower($module); ?>_tags')
+                    );
+                    $(this).find('select').change(function () 
+                    {
+                        $(this).closest('form').submit();    
+                    })
+                });
             });
         }
     </script>

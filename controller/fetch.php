@@ -4,6 +4,8 @@ require_once "models/base/model_base.php";
 require_once "models/modules.php";
 require_once "models/wishlist.php";
 require_once "models/todo.php";
+require_once "models/tags.php";
+require_once "models/bookmarks.php";
 
 class CFetcher 
 {
@@ -61,7 +63,7 @@ class CFetcher
             {
                 $this->getForeign();
             }
-            if ($getMtm)
+            if ($getMtm && !CDBConfig::doSkipMtm($this->table))
             {
                 $this->getManyToMany();
             }

@@ -7,9 +7,9 @@ class CAdder
     private $query;
     private $plH;
 
-    public function __construct($dbHandle, string $module) 
+    public function __construct($dbHandle, string $module, bool $rawTable = false) 
     {
-        if ($module != "modules")
+        if ($module != "modules" && !$rawTable)
         {
             $fetch_module = new CFetcher($dbHandle, 'modules');
             $fetch_module->setConnInfo(
@@ -31,14 +31,20 @@ class CAdder
                 $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
             }
         }
-        else 
+        else if ($module == "modules")
         {
-            $this->module = "modules";
+            $this->module = $module;
             $this->setConnInfo(
                 CDefaultCfg::getCfgItem("default_module_table"), 
                 CDefaultCfg::getCfgItem("default_module_class")
             );
-
+        }
+        else if ($rawTable)
+        {
+            $this->setConnInfo(
+                $module, 
+                ""
+            );
         }
 
         $this->plH = array();

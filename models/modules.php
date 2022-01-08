@@ -79,7 +79,7 @@ class CModule implements JsonSerializable
 
     public function getModuleName() : string
     {
-        return $this->module_name = $t;
+        return $this->module_name;
     }
 
     public function getModuleTable() : string

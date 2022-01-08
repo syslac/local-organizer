@@ -32,12 +32,13 @@ class CFetcher
                 $module
             );
 
-            if ($found_module == null || $found_module == new stdClass()) 
+            if ($found_module == null || sizeof($found_module) <= 0) 
             {
                 //echo "Warning: module $module not found!";
             }
             else 
             {
+                $found_module = $found_module[0];
                 $this->module = $module;
                 $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
             }
@@ -207,17 +208,41 @@ class CFetcher
         $this->results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function searchByColumn(string $column, string $value) : ?object
+    public function searchByColumn(string $column, string $value) : ?array
     {
+        $innerWhere = " WHERE 1 ";
+        $outerWhere = " WHERE 1";
         if (!CDBConfig::isValidColumn($this->table, $column)) 
         {
-            return null;
+            $found_mtm = false;
+            foreach ($this->mtm as $join) 
+            {
+                if ($column === $join["COLUMN_NAME"]."_mtm") 
+                {
+                    $found_mtm = true;
+                    break;
+                }
+            }
+            if (!$found_mtm)
+            {
+                return null;
+            }
+            else 
+            {
+                $outerWhere = " WHERE Q.".$column ." LIKE CONCAT('%', ?, '%') ";
+            }
         }
-        $query = $this->query["select"]
+        else 
+        {
+            $innerWhere = " WHERE A.".$column ." = ? ";
+        }
+        $query = "SELECT * FROM (" 
+            .$this->query["select"]
             .$this->query["join"]
-            ." WHERE A.".$column ." = ? "
+            .$innerWhere
             .$this->query["group"]
-            ." LIMIT 0,1 ";
+            ." ) Q ".$outerWhere."
+            ";
 
         $stmt = $this->dbo->prepare($query);
         $stmt->execute([$value]);
@@ -228,9 +253,9 @@ class CFetcher
         }
         if (sizeof($this->results) > 0) 
         {
-            return $this->results[0];
+            return $this->results;
         }
-        else return new stdClass();
+        else return [];
     }
 
     public function getRawResults(): array

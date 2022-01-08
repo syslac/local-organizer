@@ -31,6 +31,9 @@ class CRowOutput implements IDisplayItem
                     case "is_done":
                         $ret_val .= " done";
                         break;
+                    case "tags":
+                        $ret_val .= " mtm";
+                        break;
                     default:
                         break;
                 }

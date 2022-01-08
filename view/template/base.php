@@ -143,6 +143,32 @@ tr.done a
                 }
             });
         }
+        function enable_mtms() 
+        {
+            $('td.mtm').each(function ()
+            {
+                var mtms = $(this).text().split(',');
+                if (mtms.length == 0)
+                {
+                    return;
+                }
+                $(this).html('');
+                mtms.forEach((t) => 
+                {
+                    if (t === '') 
+                    {
+                        return;
+                    }
+                    $('<span>')
+                        .html('&nbsp;')
+                        .appendTo($(this));
+                    $('<a>')
+                        .prop('href', '<?php echo $root."/".$module; ?>/view/id_tag_mtm/'+t)
+                        .text(t)
+                        .appendTo($(this));
+                })
+            });
+        }
     </script>
     </body>
 </html>

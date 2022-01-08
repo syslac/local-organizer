@@ -21,12 +21,13 @@ class CAdder
                 $module
             );
 
-            if ($found_module == null) 
+            if ($found_module == null || sizeof($found_module) <= 0) 
             {
                 echo "Warning: module $module not found!";
             }
             else 
             {
+                $found_module = $found_module[0];
                 $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
             }
         }

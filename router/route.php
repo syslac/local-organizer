@@ -74,7 +74,7 @@ class CRoute
                 $col_search = false;
                 foreach ($this->extra as $k => $v) 
                 {
-                    if ($ret->searchByColumn($k, $v) != null) 
+                    if ($ret->searchByColumn($k, $v) !== null) 
                     {
                         $col_search = true;
                     }

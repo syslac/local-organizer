@@ -119,6 +119,16 @@ class CRoute
                 header("Location: ".$request_string);
                 break;
 
+            case "del_mtm":
+                $ret = new CDeleter(CDBConfig::getInstance(), $this->extra["table"], true);
+                unset($this->extra["table"]);
+                $ret->setExternalCondition($this->extra);
+                $ret->run();
+                $request_string = CDefaultCfg::getCfgItem("default_http_root")
+                    . "/" . $this->module . "/view/";
+                header("Location: ".$request_string);
+                break;
+
             case "delete":
                 $ret = new CDeleter(CDBConfig::getInstance(), $this->module);
                 $ret->setCondition($this->extra);
@@ -137,6 +147,17 @@ class CRoute
                         "root" => CDefaultCfg::getCfgItem("default_http_root"),
                         "extra" => $this->extra,
                         "action" => $this->action,
+                        "add_url" => "/view/id/0",
+                    ));
+                $this->embed_template("view/template/base_js.php",
+                    array(
+                        "module" => $this->module,
+                        "root" => CDefaultCfg::getCfgItem("default_http_root"),
+                        "new_tag_form" => (new CFormExternalSelect('lo_tags'))->getColumnEditForm(0, 'id_tag', 'Tag'),
+                        "edit_url" => "/view/id/",
+                        "delete_url" => "/delete/id/",
+                        "filter_tag_url" => "/view/id_tag_mtm/",
+                        "add_tag_url" => "/add_mtm/",
                     ));
 
                 $request_string = CDefaultCfg::getCfgItem("default_http_root")

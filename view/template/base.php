@@ -6,84 +6,7 @@
     </head>
 
     <link href="<?php echo str_replace("/local_organizer", "", $root); ?>/js/bootstrap.css" rel="stylesheet" />
-    </script>
-
-<style>
-body 
-{
-    padding : 10px;
-}
-#main_results_table 
-{
-    margin: 2%;
-}
-.edit 
-{
-    width: 20px;
-}
-.delete 
-{
-    width: 20px;
-}
-.add_tag 
-{
-    width: 20px;
-}
-.hidden 
-{
-    display: none;
-}
-form.object_edit 
-{
-    border: 1px solid #444444;
-    padding: 20px;
-}
-form.object_edit input 
-{
-    position: absolute; 
-    left: 20%;
-}
-form.object_edit select 
-{
-    position: absolute; 
-    left: 20%;
-}
-form.object_edit .field 
-{
-    font-weight: bold;
-    position: absolute;
-}
-form.object_edit .input_unit
-{
-    margin-bottom: 10px;
-}
-form.object_edit .enter 
-{
-    position: relative;
-}
-.add_new 
-{
-    margin-top: 10px;
-    margin-right: 20px;
-    font-size: 32pt;
-    float: right;
-}
-.add_new a 
-{
-    outline: none;
-    text-decoration: none;
-}
-tr.done 
-{
-    text-decoration: line-through;
-    background-color: #555555;
-    color: white;
-}
-tr.done a
-{
-    color: #99ddff;
-}
-</style>
+    <link href="<?php echo $root; ?>/view/template/base.css" rel="stylesheet" />
 
     <body>
 <?php
@@ -105,111 +28,11 @@ tr.done a
 <?php
     if ($action == "view") 
     {
-        echo "<div class=\"add_new\"><a href=\"". $root."/".$module."/view/id/0\">➕</a></div>";
+        echo "<div class=\"add_new\"><a href=\"". $root."/".$module.$add_url."\">➕</a></div>";
     }
 ?>
 
     <script src="<?php echo str_replace("/local_organizer", "", $root); ?>/js/jquery-3.6.0.min.js"></script>
     <script src="<?php echo str_replace("/local_organizer", "", $root); ?>/js/bootstrap.min.js"></script>
-    <script>
-        function enable_edits() 
-        {
-            $('#main_results_table .edit').click(function () 
-            {
-                var idItem = $(this).nextAll('.id').text();
-                document.location = '<?php echo $root."/".$module; ?>/view/id/'+idItem;
-            });
-        }
-        function enable_select() 
-        {
-            $('#main_results_table tr').dblclick(function () 
-            {
-                var idItem = $(this).children('.id').text();
-                document.location = '<?php echo $root."/".$module; ?>/view/id/'+idItem;
-            });
-        }
-        function enable_deletes() 
-        {
-            $('#main_results_table .delete').click(function () 
-            {
-                var idItem = $(this).next('.id').text();
-                document.location = '<?php echo $root."/".$module; ?>/delete/id/'+idItem;
-            });
-        }
-        function compute_dones() 
-        {
-            $('td.done').each(function ()
-            {
-                var val = $(this).text();
-                if (val == '1') 
-                {
-                    $(this).parent().addClass('done');
-                }
-            });
-        }
-        function enable_mtms() 
-        {
-            $('td.mtm').each(function ()
-            {
-                var mtms = $(this).text().split(',');
-                if (mtms.length == 0)
-                {
-                    return;
-                }
-                $(this).html('');
-                mtms.forEach((t) => 
-                {
-                    if (t === '') 
-                    {
-                        return;
-                    }
-                    $('<span>')
-                        .html('&nbsp;')
-                        .appendTo($(this));
-                    $('<a>')
-                        .prop('href', '<?php echo $root."/".$module; ?>/view/id_tag_mtm/'+t)
-                        .text(t)
-                        .appendTo($(this));
-                })
-            });
-            $('td.add_tag').each(function ()
-            {
-                if ($(this).parent('tr').children('td.mtm').length <= 0) 
-                {
-                    $(this).html('');
-                    return;
-                }
-                $(this).click(function() {
-                    $(this).unbind('click');
-                    $(this).text('');
-                    var form = $('<form>')
-                        .attr('action', '<?php echo $root."/".$module; ?>/add_mtm/')
-                        .attr('method', 'POST');
-                    $(this).append(form);
-                    $(this).find('form').html('<?php echo str_replace(
-                        array("\n", "\r"), 
-                        "", 
-                        (new CFormExternalSelect('lo_tags'))
-                            ->getColumnEditForm(0, 'id_tag', 'Tag')
-                        ); 
-                        ?>');
-                    $(this).find('form').append($('<input>')
-                        .attr('type', 'hidden')
-                        .attr('name', 'id_<?php echo strtolower($module); ?>')
-                        .attr('value', $(this).closest('tr').find('td.id').text())
-                    );
-                    $(this).find('form').append($('<input>')
-                        .attr('type', 'hidden')
-                        .attr('name', 'table')
-                        .attr('value', 'lo_<?php echo strtolower($module); ?>_tags')
-                    );
-                    $(this).find('select').change(function () 
-                    {
-                        $(this).closest('form').submit();    
-                    })
-                });
-            });
-        }
-    </script>
     </body>
 </html>

@@ -1,0 +1,79 @@
+body 
+{
+    padding : 10px;
+}
+#main_results_table 
+{
+    margin: 2%;
+}
+.edit 
+{
+    width: 20px;
+}
+.delete 
+{
+    width: 20px;
+}
+.add_tag 
+{
+    width: 20px;
+}
+.hidden 
+{
+    display: none;
+}
+form.object_edit 
+{
+    border: 1px solid #444444;
+    padding: 20px;
+}
+form.object_edit input 
+{
+    position: absolute; 
+    left: 20%;
+}
+form.object_edit select 
+{
+    position: absolute; 
+    left: 20%;
+}
+form.object_edit .field 
+{
+    font-weight: bold;
+    position: absolute;
+}
+form.object_edit .input_unit
+{
+    margin-bottom: 10px;
+}
+form.object_edit .enter 
+{
+    position: relative;
+}
+.add_new 
+{
+    margin-top: 10px;
+    margin-right: 20px;
+    font-size: 32pt;
+    float: right;
+}
+.add_new a 
+{
+    outline: none;
+    text-decoration: none;
+}
+tr.done 
+{
+    text-decoration: line-through;
+    background-color: #555555;
+    color: white;
+}
+tr.done a
+{
+    color: #99ddff;
+}
+.mtm 
+{
+    width : 150px;
+    overflow: scroll;
+}

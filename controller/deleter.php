@@ -7,9 +7,9 @@ class CDeleter
     private $query;
     private $plH;
 
-    public function __construct($dbHandle, string $module) 
+    public function __construct($dbHandle, string $module, bool $rawTable = false) 
     {
-        if ($module != "modules")
+        if ($module != "modules" && !$rawTable)
         {
             $fetch_module = new CFetcher($dbHandle, 'modules');
             $fetch_module->setConnInfo(
@@ -31,14 +31,20 @@ class CDeleter
                 $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
             }
         }
-        else 
+        else if ($module == "modules")
         {
             $this->module = "modules";
             $this->setConnInfo(
                 CDefaultCfg::getCfgItem("default_module_table"), 
                 CDefaultCfg::getCfgItem("default_module_class")
             );
-
+        }
+        else if ($rawTable)
+        {
+            $this->setConnInfo(
+                $module, 
+                ""
+            );
         }
 
         $this->plH = array();
@@ -63,6 +69,43 @@ class CDeleter
                 if (CDBConfig::isValidColumn($this->table, $key) && $key == "id") 
                 {
                     $this->query["where"] = " WHERE ".$key." = ?";
+                    array_push($this->plH, $val);
+                }
+            }
+        }
+    }
+
+    public function setExternalCondition(?array $conditions) 
+    {
+        if (sizeof($conditions) == 2
+            && isset($conditions["tag"])) 
+        {
+            if (CDBConfig::isValidTable($this->table)) 
+            {
+                $this->query["delete"] = "DELETE A.* FROM ".$this->table. " A ";
+                $this->query["delete"] .= " LEFT JOIN lo_tags T ON T.id = A.id_tag";
+            }
+            else 
+            {
+                $this->query["delete"] = "";
+            }
+            $this->query["where"] = " WHERE ";
+            $clauses = 0;
+            foreach($conditions as $key => $val)
+            {
+                $this->query["where"] .= ($clauses == 0 ? "" : " AND ");
+                $clauses++;
+                if ($key != "tag") 
+                {
+                    if (CDBConfig::isValidColumn($this->table, $key)) 
+                    {
+                        $this->query["where"] .= " A.".$key." = ? ";
+                        array_push($this->plH, $val);
+                    }
+                }
+                else 
+                {
+                    $this->query["where"] .= " T.name LIKE ? ";
                     array_push($this->plH, $val);
                 }
             }

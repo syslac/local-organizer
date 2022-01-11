@@ -1,5 +1,0 @@
-Testing
-Cols/Table name whitelist (DONE)
-Search by not id (DONE)
-How to let fetch know about external relations? (DONE)
-Extra object attributes in fetch response to handle links, etc (DONE)

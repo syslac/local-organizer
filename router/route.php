@@ -17,7 +17,7 @@ class CRoute
     private $action;
     private $extra;
 
-    public function __construct($url)
+    public function __construct($url = "")
     {
         if ($url == null || $url == "") 
         {
@@ -25,6 +25,16 @@ class CRoute
         }
         $this->url = $url;
         $this->update_from_url();
+    }
+
+    public function getAction() 
+    {
+        return $this->action;
+    }
+
+    public function getModule() 
+    {
+        return $this->module;
     }
 
     public function update_from_url() 
@@ -40,22 +50,32 @@ class CRoute
         }
         if (sizeof($parts) > 3) 
         {
-            for ($i = 3; $i + 1 < sizeof($parts); $i+= 2) 
+            for ($i = 3; $i < sizeof($parts); $i+= 2) 
             {
-                $this->extra[$parts[$i]] = $parts[$i + 1];
+                if ($i + 1 < sizeof($parts)) 
+                {
+                    $this->extra[$parts[$i]] = $parts[$i + 1];
+                }
+                else 
+                {
+                    $this->extra[$parts[$i]] = "";
+                }
             }
         }
     }
 
     public function getExtraParam (string $param) : ?string
     {
-        if (array_key_exists($param, $this->extra)) 
+        if (
+            $this->extra === null 
+            || !array_key_exists($param, $this->extra)
+            ) 
         {
-            return $this->extra[$param];
+            return null;
         }
         else 
         {
-            return null;
+            return $this->extra[$param];
         }
     }
 

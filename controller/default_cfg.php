@@ -7,8 +7,8 @@ class CDefaultCfg
 
     private function __construct() 
     {
-        $json_string = file_get_contents("./cfg.json");
-        $this->cfg = json_decode($json_string, true);
+        include_once "./cfg.json.php";
+        $this->cfg = json_decode($json_cfg, true);
     }
 
     private function GetDefaultConfig() : array

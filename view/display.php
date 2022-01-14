@@ -161,10 +161,10 @@ class CFormExternalSelect implements IDisplayColumn
 
     public function __construct(string $ext_module) 
     {
-        $ret = new CFetcher(CDBConfig::getInstance(), '', false, false);
+        $ret = new CFetcher(CDBConfig::getInstance(), '', null, false, false);
         $ret->setConnInfo($ext_module, '');
-        $ret->populateQuery();
-        $ret->getExtAssoc();
+        $ret->setFetchExt();
+        $ret->setOperationParams([]);
         foreach($ret->getRawResults() as $it)
         {
             $this->opt[$it['id']] = $it['name'];

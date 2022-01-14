@@ -133,4 +133,165 @@ class CDBConfig
 
 }
 
+abstract class OpType 
+{
+    const searchByColumn = 0;
+    const fetchLatest = 1;
+    const fetchExt = 2;
+    const edit = 3;
+    const add = 4;
+    const addRaw = 5;
+    const del = 6;
+    const delRaw = 7;
+    const MAX_OP = 8;
+};
+
+interface IDBOp 
+{
+    public function setConnInfo(string $module, string $class);
+    public function populateQuery();
+    public function setOperationType(int $op);
+    public function setOperationParams(array $params);
+    public function executeOperation();
+    public function getResults() : string;
+    public function getRawResults() : ?array;
+};
+
+class CQuery
+{
+    private $statement;
+    private $placeholders;
+
+    public function __construct() 
+    {
+        $this->statement = [];
+        $this->placeholders = [];
+    }
+
+    public function getStatement() : string
+    {
+        return join(" ", $this->statement);
+    }
+
+    public function getPlaceholders() : array
+    {
+        return $this->placeholders;
+    }
+
+    public function setStatement(string $st)
+    {
+        $this->statement = [$st];
+    }
+    public function addStatement(string $st)
+    {
+        array_push($this->statement, $st);
+    }
+
+    public function setPlaceholders(array $pl)
+    {
+        $this->placeholders = $pl;
+    }
+    public function addPlaceholder($pl)
+    {
+        array_push($this->placeholders, $pl);
+    }
+}
+
+class CDBOperation implements IDBOp
+{
+    protected $dbo;
+    protected $table;
+    protected $obj;
+    protected $operationType;
+    protected $query;
+
+    public function __construct($dbHandle, string $module, ?IDBOp $module_fetcher = null) 
+    {
+        if ($module != "modules")
+        {
+            if ($module_fetcher !== null) 
+            {
+                $module_fetcher->setConnInfo(
+                    CDefaultCfg::getCfgItem("default_module_table"), 
+                    CDefaultCfg::getCfgItem("default_module_class")
+                );
+                $module_fetcher->setOperationType(OpType::searchByColumn);
+                $module_fetcher->setOperationParams([CDefaultCfg::getCfgItem("default_module_column"), $module]);
+                $found_module = $module_fetcher->getRawResults();
+
+                if ($found_module == null || sizeof($found_module) <= 0) 
+                {
+                    //echo "Warning: module $module not found!";
+                }
+                else 
+                {
+                    $found_module = $found_module[0];
+                    $this->module = $module;
+                    $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
+                }
+            }
+        }
+        else 
+        {
+            $this->module = "modules";
+            $this->setConnInfo(
+                CDefaultCfg::getCfgItem("default_module_table"), 
+                CDefaultCfg::getCfgItem("default_module_class")
+            );
+
+        }
+
+        $this->dbo = $dbHandle;
+
+        $this->populateQuery();
+    }
+
+    public function setOperationType(int $op) 
+    {
+        if ($op < 0 || $op >= OpType::MAX_OP)
+        {
+            return;
+        }
+        $this->operationType = $op;
+    }
+
+    public function setOperationParams(array $pars) 
+    {
+        return;
+    }
+
+    public function executeOperation()    
+    {
+        //var_dump($this->query->getStatement());
+        $stmt = $this->dbo->prepare($this->query->getStatement());
+        $stmt->execute($this->query->getPlaceholders());
+        return $stmt;
+    }
+
+    public function populateQuery()
+    {
+        $this->query = new CQuery();
+    }
+
+    public function setConnInfo(string $table, string $obj) 
+    {
+        if (CDBConfig::isValidTable($table)) 
+        {
+            $this->table = $table;
+            $this->obj = $obj;
+        }
+    }
+
+    public function getRawResults() : ?array
+    {
+        return null;
+    }
+
+    public function getResults() : string
+    {
+        return "";
+    }
+
+}
+
 ?>

@@ -1,124 +1,82 @@
 <?php
 
-class CDeleter 
+include_once "controller/db.php";
+
+class CDeleter extends CDBOperation
 {
-    private $table;
-    private $dbo;
-    private $query;
-    private $plH;
-
-    public function __construct($dbHandle, string $module, bool $rawTable = false) 
+    public function __construct($dbHandle, string $module, ?IDBOp $module_fetcher = null, bool $rawTable = false) 
     {
-        if ($module != "modules" && !$rawTable)
-        {
-            $fetch_module = new CFetcher($dbHandle, 'modules');
-            $fetch_module->setConnInfo(
-                CDefaultCfg::getCfgItem("default_module_table"), 
-                CDefaultCfg::getCfgItem("default_module_class")
-            );
-            $found_module = $fetch_module->searchByColumn(
-                CDefaultCfg::getCfgItem("default_module_column"), 
-                $module
-            );
-
-            if ($found_module == null || sizeof($found_module) <= 0) 
-            {
-                echo "Warning: module $module not found!";
-            }
-            else 
-            {
-                $found_module = $found_module[0];
-                $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
-            }
-        }
-        else if ($module == "modules")
-        {
-            $this->module = "modules";
-            $this->setConnInfo(
-                CDefaultCfg::getCfgItem("default_module_table"), 
-                CDefaultCfg::getCfgItem("default_module_class")
-            );
-        }
-        else if ($rawTable)
+        parent::__construct($dbHandle, $module, $module_fetcher);
+        if ($rawTable)
         {
             $this->setConnInfo(
                 $module, 
                 ""
             );
+            $this->setOperationType(OpType::delRaw);
         }
-
-        $this->plH = array();
-        $this->dbo = $dbHandle;
+        else 
+        {
+            $this->setOperationType(OpType::del);
+        }
+        $this->query->setStatement("DELETE FROM ".$this->table);
     }
 
-    public function setConnInfo(string $table, string $obj) 
+    public function setOperationParams(array $pars) 
     {
-        if (CDBConfig::isValidTable($table)) 
+        switch ($this->operationType)
         {
-            $this->table = $table;
-            $this->query["delete"] = "DELETE FROM ".$table;
-        }
-    }
-
-    public function setCondition(?array $id) 
-    {
-        if (sizeof($id) == 1) 
-        {
-            foreach($id as $key => $val)
-            {
-                if (CDBConfig::isValidColumn($this->table, $key) && $key == "id") 
+            case OpType::delRaw:
+                if (sizeof($pars) == 2
+                    && isset($pars["tag"])) 
                 {
-                    $this->query["where"] = " WHERE ".$key." = ?";
-                    array_push($this->plH, $val);
-                }
-            }
-        }
-    }
-
-    public function setExternalCondition(?array $conditions) 
-    {
-        if (sizeof($conditions) == 2
-            && isset($conditions["tag"])) 
-        {
-            if (CDBConfig::isValidTable($this->table)) 
-            {
-                $this->query["delete"] = "DELETE A.* FROM ".$this->table. " A ";
-                $this->query["delete"] .= " LEFT JOIN lo_tags T ON T.id = A.id_tag";
-            }
-            else 
-            {
-                $this->query["delete"] = "";
-            }
-            $this->query["where"] = " WHERE ";
-            $clauses = 0;
-            foreach($conditions as $key => $val)
-            {
-                $this->query["where"] .= ($clauses == 0 ? "" : " AND ");
-                $clauses++;
-                if ($key != "tag") 
-                {
-                    if (CDBConfig::isValidColumn($this->table, $key)) 
+                    if (CDBConfig::isValidTable($this->table)) 
                     {
-                        $this->query["where"] .= " A.".$key." = ? ";
-                        array_push($this->plH, $val);
+                        $this->query->setStatement("DELETE A.* FROM ".$this->table. " A ");
+                        $this->query->addStatement(" LEFT JOIN lo_tags T ON T.id = A.id_tag");
+                    }
+                    else 
+                    {
+                        $this->query->setStatement("");
+                    }
+                    $this->query->addStatement(" WHERE ");
+                    $clauses = 0;
+                    foreach($pars as $key => $val)
+                    {
+                        $this->query->addStatement($clauses == 0 ? "" : " AND ");
+                        $clauses++;
+                        if ($key != "tag") 
+                        {
+                            if (CDBConfig::isValidColumn($this->table, $key)) 
+                            {
+                                $this->query->addStatement(" A.".$key." = ? ");
+                                $this->query->addPlaceholder($val);
+                            }
+                        }
+                        else 
+                        {
+                            $this->query->addStatement(" T.name LIKE ? ");
+                            $this->query->addPlaceholder($val);
+                        }
                     }
                 }
-                else 
+                break;
+            case OpType::del;
+                if (sizeof($pars) == 1) 
                 {
-                    $this->query["where"] .= " T.name LIKE ? ";
-                    array_push($this->plH, $val);
+                    foreach($pars as $key => $val)
+                    {
+                        if (CDBConfig::isValidColumn($this->table, $key) && $key == "id") 
+                        {
+                            $this->query->addStatement(" WHERE ".$key." = ?");
+                            $this->query->addPlaceholder($val);
+                        }
+                    }
                 }
-            }
+                break;
+            default:
+                return;
         }
-    }
-
-    public function run() 
-    {
-        $query = $this->query["delete"]
-            .$this->query["where"];
-        $stmt = $this->dbo->prepare($query);
-        $stmt->execute($this->plH);
-
     }
 };
 

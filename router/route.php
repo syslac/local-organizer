@@ -62,6 +62,7 @@ class CRoute
                 }
             }
         }
+        unset($this->extra[""]);
     }
 
     public function getExtraParam (string $param) : ?string
@@ -85,77 +86,82 @@ class CRoute
         include $filename;
     }
 
+    public function rerouteToView() 
+    {
+        $request_string = CDefaultCfg::getCfgItem("default_http_root")
+            . "/" . $this->module . "/view/";
+        header("Location: ".$request_string);
+    }
+
     public function dispatch () 
     {
+        $module_fetcher = new CFetcher(CDBConfig::getInstance(), "modules", null, false, false);
         switch ($this->action) 
         {
             case "fetch":
-                $ret = new CFetcher(CDBConfig::getInstance(), $this->module);
+                $ret = new CFetcher(CDBConfig::getInstance(), $this->module, $module_fetcher);
                 $col_search = false;
                 foreach ($this->extra as $k => $v) 
                 {
-                    if ($ret->searchByColumn($k, $v) !== null) 
+                    $ret->setSearchColumn();
+                    $ret->setOperationParams([$k, $v]);
+                    if (!$ret->getResetSearchColError()) 
                     {
                         $col_search = true;
                     }
                 }
                 if (!$col_search) 
                 {
-                    $ret->GetLatest(
+                    $ret->setGetLatest();
+                    $ret->setOperationParams(
                         $this->getExtraParam("limit") == null 
-                        ? CDefaultCfg::getCfgItem("default_pagination") 
-                        : $this->getExtraParam("limit")
+                        ? [CDefaultCfg::getCfgItem("default_pagination")]
+                        : [$this->getExtraParam("limit")]
                     );
                 }
                 echo $ret->getResults();
                 break;
             
             case "edit":
-                $ret = new CEditor(CDBConfig::getInstance(), $this->module);
-                $ret->setData($_POST);
-                $ret->setCondition($this->extra);
-                $ret->run();
+                $ret = new CEditor(CDBConfig::getInstance(), $this->module, $module_fetcher);
+                $ret->setOperationParams([
+                    "data" => $_POST,
+                    "condition" => $this->extra,
+                ]);
+                $ret->executeOperation();
                 $request_string = CDefaultCfg::getCfgItem("default_http_root")
                     . "/" . $this->module . "/view/";
                 header("Location: ".$request_string);
                 break;
 
             case "add":
-                $ret = new CAdder(CDBConfig::getInstance(), $this->module);
-                $ret->setData($_POST);
-                $ret->run();
-                $request_string = CDefaultCfg::getCfgItem("default_http_root")
-                    . "/" . $this->module . "/view/";
-                header("Location: ".$request_string);
+                $ret = new CAdder(CDBConfig::getInstance(), $this->module, $module_fetcher);
+                $ret->setOperationParams($_POST);
+                $ret->executeOperation();
+                $this->rerouteToView();
                 break;
 
             case "add_mtm":
-                $ret = new CAdder(CDBConfig::getInstance(), $_POST["table"], true);
+                $ret = new CAdder(CDBConfig::getInstance(), $_POST["table"], $module_fetcher, true);
                 unset($_POST["table"]);
-                $ret->setData($_POST);
-                $ret->run();
-                $request_string = CDefaultCfg::getCfgItem("default_http_root")
-                    . "/" . $this->module . "/view/";
-                header("Location: ".$request_string);
+                $ret->setOperationParams($_POST);
+                $ret->executeOperation();
+                $this->rerouteToView();
                 break;
 
             case "del_mtm":
-                $ret = new CDeleter(CDBConfig::getInstance(), $this->extra["table"], true);
+                $ret = new CDeleter(CDBConfig::getInstance(), $this->extra["table"], $module_fetcher, true);
                 unset($this->extra["table"]);
-                $ret->setExternalCondition($this->extra);
-                $ret->run();
-                $request_string = CDefaultCfg::getCfgItem("default_http_root")
-                    . "/" . $this->module . "/view/";
-                header("Location: ".$request_string);
+                $ret->setOperationParams($this->extra);
+                $ret->executeOperation();
+                $this->rerouteToView();
                 break;
 
             case "delete":
-                $ret = new CDeleter(CDBConfig::getInstance(), $this->module);
-                $ret->setCondition($this->extra);
-                $ret->run();
-                $request_string = CDefaultCfg::getCfgItem("default_http_root")
-                    . "/" . $this->module . "/view/";
-                header("Location: ".$request_string);
+                $ret = new CDeleter(CDBConfig::getInstance(), $this->module, $module_fetcher);
+                $ret->setOperationParams($this->extra);
+                $ret->executeOperation();
+                $this->rerouteToView();
                 break;
             
             case "":

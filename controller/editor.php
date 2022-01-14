@@ -1,112 +1,67 @@
 <?php
 
-class CEditor 
+include_once "controller/db.php";
+
+class CEditor extends CDBOperation
 {
-    private $table;
-    private $dbo;
-    private $query;
-    private $plH;
-
-    public function __construct($dbHandle, string $module) 
+    public function __construct($dbHandle, string $module, ?IDBOp $module_fetcher = null) 
     {
-        if ($module != "modules")
-        {
-            $fetch_module = new CFetcher($dbHandle, 'modules');
-            $fetch_module->setConnInfo(
-                CDefaultCfg::getCfgItem("default_module_table"), 
-                CDefaultCfg::getCfgItem("default_module_class")
-            );
-            $found_module = $fetch_module->searchByColumn(
-                CDefaultCfg::getCfgItem("default_module_column"), 
-                $module
-            );
-
-            if ($found_module == null || sizeof($found_module) <= 0) 
-            {
-                echo "Warning: module $module not found!";
-            }
-            else 
-            {
-                $found_module = $found_module[0];
-                $this->setConnInfo($found_module->getModuleTable(), $found_module->getModuleClass());
-            }
-        }
-        else 
-        {
-            $this->module = "modules";
-            $this->setConnInfo(
-                CDefaultCfg::getCfgItem("default_module_table"), 
-                CDefaultCfg::getCfgItem("default_module_class")
-            );
-
-        }
-
-        $this->plH = array();
-        $this->dbo = $dbHandle;
+        parent::__construct($dbHandle, $module, $module_fetcher);
+        $this->setOperationType(OpType::edit);
+        $this->query->setStatement("UPDATE ".$this->table);
     }
 
-    public function setConnInfo(string $table, string $obj) 
+    public function setOperationParams(array $pars) 
     {
-        if (CDBConfig::isValidTable($table)) 
+        switch ($this->operationType)
         {
-            $this->table = $table;
-            $this->query["update"] = "UPDATE ".$table;
-        }
-    }
-
-    public function setData(array $data) 
-    {
-        $this->query["set"] = " SET ";
-        $cnt = 0;
-        $all_fields_valid = true;
-        foreach ($data as $fld => $val) 
-        {
-            $all_fields_valid = $all_fields_valid && CDBConfig::isValidColumn($this->table, $fld);
-            if ($val == '') 
-            {
-                $val = null;
-            }
-            array_push($this->plH, $val);
-            if ($cnt == 0) 
-            {
-                $this->query["set"] .= " ".$fld." = ? ";
-            }
-            else 
-            {
-                $this->query["set"] .= ", ".$fld." = ? ";
-            }
-            $cnt++;
-        }
-        if (!$all_fields_valid) 
-        {
-            unset($this->query["set"]);
-        }
-    }
-
-    public function setCondition(?array $id) 
-    {
-        if (sizeof($id) == 1) 
-        {
-            foreach($id as $key => $val)
-            {
-                if (CDBConfig::isValidColumn($this->table, $key)) 
+            case OpType::edit:
+                if (sizeof($pars) != 2 || !isset($pars["data"]) || !isset($pars["condition"]))
                 {
-                    $this->query["where"] = " WHERE ".$key." = ?";
-                    array_push($this->plH, $val);
+                    return;
                 }
-            }
+                $this->query->addStatement(" SET ");
+                $cnt = 0;
+                $all_fields_valid = true;
+                foreach ($pars["data"] as $fld => $val) 
+                {
+                    $all_fields_valid = $all_fields_valid && CDBConfig::isValidColumn($this->table, $fld);
+                    if ($val == '') 
+                    {
+                        $val = null;
+                    }
+                    $this->query->addPlaceholder($val);
+                    if ($cnt == 0) 
+                    {
+                        $this->query->addStatement(" ".$fld." = ? ");
+                    }
+                    else 
+                    {
+                        $this->query->addStatement(", ".$fld." = ? ");
+                    }
+                    $cnt++;
+                }
+                if (!$all_fields_valid) 
+                {
+                    $this->query->setStatement("");
+                }
+                if (sizeof($pars["condition"]) == 1) 
+                {
+                    foreach($pars["condition"] as $key => $val)
+                    {
+                        if (CDBConfig::isValidColumn($this->table, $key)) 
+                        {
+                            $this->query->addStatement(" WHERE ".$key." = ?");
+                            $this->query->addPlaceholder($val);
+                        }
+                    }
+                }
+                break;
+            default:
+                return;
         }
-    }
+    }  
 
-    public function run() 
-    {
-        $query = $this->query["update"]
-            .$this->query["set"]
-            .$this->query["where"];
-        $stmt = $this->dbo->prepare($query);
-        $stmt->execute($this->plH);
-
-    }
 };
 
 ?>

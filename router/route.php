@@ -1,6 +1,7 @@
 <?php
 
 require_once "controller/default_cfg.php";
+require_once "controller/relation.php";
 require_once "view/crud.php";
 require_once "view/display.php";
 require_once "controller/fetch.php";
@@ -95,11 +96,11 @@ class CRoute
 
     public function dispatch () 
     {
-        $module_fetcher = new CFetcher(CDBConfig::getInstance(), "modules", null, false, false);
+        $module_fetcher = new CFetcher(CDBConfig::getInstance(), "modules", null, new CNullRelationFinder());
         switch ($this->action) 
         {
             case "fetch":
-                $ret = new CFetcher(CDBConfig::getInstance(), $this->module, $module_fetcher);
+                $ret = new CFetcher(CDBConfig::getInstance(), $this->module, $module_fetcher, new CMySQLRelationFinder());
                 $col_search = false;
                 foreach ($this->extra as $k => $v) 
                 {

@@ -1,6 +1,7 @@
 <?php
 
 require_once "controller/db.php";
+require_once "controller/relation.php";
 require_once "models/base/model_base.php";
 require_once "models/modules.php";
 require_once "models/wishlist.php";
@@ -11,30 +12,23 @@ require_once "models/bookmarks.php";
 class CFetcher extends CDBOperation
 {
     private $results;
-    private $foreign;
-    private $mtm;
     private $searchById;
     private $pdoFetchMode;
     private $searchColError;
+    private $rel_finder;
 
-    public function __construct($dbHandle, string $module, ?IDBOp $module_fetcher = null, bool $getForeign = true, bool $getMtm = true) 
+    public function __construct($dbHandle, string $module, ?IDBOp $module_fetcher = null, ?IRelationFinder $rel = null) 
     {
         parent::__construct($dbHandle, $module, $module_fetcher);
 
         if (isset($this->dbo) && isset($this->table))
         {
-            if ($getForeign)
-            {
-                $this->getForeign();
-            }
-            if ($getMtm && !CDBConfig::doSkipMtm($this->table))
-            {
-                $this->getManyToMany();
-            }
+            $rel->init($this->table, $this->dbo, CDBConfig::doSkipMtm($this->table));
         }
         $this->searchById = false;
         $this->pdoFetchMode = PDO::FETCH_CLASS;
         $this->searchColError = false;
+        $this->rel_finder = $rel;
     }
 
     public function setConnInfo(string $table, string $obj) 
@@ -68,46 +62,6 @@ class CFetcher extends CDBOperation
         return $ret;
     }
 
-    public function getForeign() 
-    {
-        $stmt = $this->dbo->prepare("
-            SELECT `COLUMN_NAME`, `REFERENCED_TABLE_NAME`, `REFERENCED_COLUMN_NAME` 
-            FROM `information_schema`.`KEY_COLUMN_USAGE` 
-            WHERE `TABLE_SCHEMA` = ? 
-            AND `TABLE_NAME` = ? 
-            AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL 
-            AND `REFERENCED_TABLE_NAME` IS NOT NULL 
-            AND `REFERENCED_COLUMN_NAME` IS NOT NULL
-        ");
-        $stmt->execute([CDefaultCfg::getCfgItem("db_name"), $this->table]);
-        $this->foreign = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getManyToMany() 
-    {
-        $stmt = $this->dbo->prepare("
-            SELECT TABLE_TO_MTM.`COLUMN_NAME` AS MTM_ID, 
-            TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` AS MTM_ORIG_ID, 
-            MTM_TO_FOREIGN.`TABLE_NAME`, 
-            MTM_TO_FOREIGN.`COLUMN_NAME`, 
-            MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`, 
-            MTM_TO_FOREIGN.`REFERENCED_COLUMN_NAME` 
-            FROM `information_schema`.`KEY_COLUMN_USAGE` TABLE_TO_MTM
-            LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` MTM_TO_FOREIGN 
-                ON TABLE_TO_MTM.`TABLE_NAME` = MTM_TO_FOREIGN.`TABLE_NAME`
-                AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` <> MTM_TO_FOREIGN.`REFERENCED_TABLE_NAME`
-            WHERE TABLE_TO_MTM.`TABLE_SCHEMA` = ?
-            AND MTM_TO_FOREIGN.`TABLE_SCHEMA` = ?
-            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` = ?
-            AND TABLE_TO_MTM.`REFERENCED_TABLE_SCHEMA` IS NOT NULL 
-            AND TABLE_TO_MTM.`REFERENCED_TABLE_NAME` IS NOT NULL 
-            AND TABLE_TO_MTM.`REFERENCED_COLUMN_NAME` IS NOT NULL
-        ");
-        $stmt->execute([CDefaultCfg::getCfgItem("db_name"), CDefaultCfg::getCfgItem("db_name"), $this->table]);
-        $this->mtm = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-
     public function setOperationParams(array $pars) 
     {
         $q_order = "";
@@ -125,53 +79,53 @@ class CFetcher extends CDBOperation
             $q_order = " ORDER BY A.id DESC ";
         }
         $foreign_counter = 0;
-        if (isset($this->foreign) && is_array($this->foreign))
-        {
-            foreach ($this->foreign as $join) 
-            {
-                $q_select .= ", FOREIGN_".$foreign_counter.".name AS ".$join["COLUMN_NAME"]."_ext";
-                $foreign_counter++;
-            }
-        }
         $mtm_counter = 0;
-        if (isset($this->mtm) && is_array($this->mtm))
+        if (isset($this->rel_finder))
         {
-            foreach ($this->mtm as $join) 
+            ;
+            for ($next_relation = $this->rel_finder->GetNextDirectRelation(); $next_relation !== null; $next_relation = $this->rel_finder->GetNextDirectRelation())
             {
-                $q_select .= ", GROUP_CONCAT(MTMEND_".$mtm_counter.".name) AS ".$join["COLUMN_NAME"]."_mtm";
+                $q_select .= ", FOREIGN_".$foreign_counter.".name AS ".$next_relation->local_col."_ext";
+                $foreign_counter++;
+            } 
+
+            for ($next_relation = $this->rel_finder->GetNextMtmRelation(); $next_relation !== null; $next_relation = $this->rel_finder->GetNextMtmRelation())
+            {
+                $q_select .= ", GROUP_CONCAT(MTMEND_".$mtm_counter.".name) AS ".$next_relation->mtm_middle_col_to."_mtm";
                 $mtm_counter++;
-            }
+            } 
+            $this->rel_finder->resetIterators();
         }
         $q_select .= " FROM ".$this->table." A "; 
         $foreign_counter = 0;
+        $mtm_counter = 0;
         $q_join = "";
-        if (isset($this->foreign) && is_array($this->foreign))
+        if (isset($this->rel_finder))
         {
-            foreach ($this->foreign as $join) 
+            for ($next_relation = $this->rel_finder->GetNextDirectRelation(); $next_relation !== null; $next_relation = $this->rel_finder->GetNextDirectRelation())
             {
-                $q_join .= "LEFT JOIN ".$join["REFERENCED_TABLE_NAME"]." 
+                $q_join .= "LEFT JOIN ".$next_relation->foreign_table." 
                 FOREIGN_".$foreign_counter." 
-                ON A.".$join["COLUMN_NAME"]." = FOREIGN_".$foreign_counter.".".$join["REFERENCED_COLUMN_NAME"]." ";
+                ON A.".$next_relation->local_col." = FOREIGN_".$foreign_counter.".".$next_relation->foreign_col." ";
                 $foreign_counter++;
             }
-        }
-        $mtm_counter = 0;
-        if (isset($this->mtm) && is_array($this->mtm))
-        {
-            foreach ($this->mtm as $join) 
+
+            for ($next_relation = $this->rel_finder->GetNextMtmRelation(); $next_relation !== null; $next_relation = $this->rel_finder->GetNextMtmRelation())
             {
-                $q_join .= "LEFT JOIN ".$join["TABLE_NAME"]." 
+                $q_join .= "LEFT JOIN ".$next_relation->mtm_middle_table." 
                 MTMMIDDLE_".$mtm_counter." 
-                ON A.".$join["MTM_ORIG_ID"]." = MTMMIDDLE_".$mtm_counter.".".$join["MTM_ID"]."
-                LEFT JOIN ".$join["REFERENCED_TABLE_NAME"]."
+                ON A.".$next_relation->local_col." = MTMMIDDLE_".$mtm_counter.".".$next_relation->mtm_middle_col_from."
+                LEFT JOIN ".$next_relation->foreign_table."
                 MTMEND_".$mtm_counter."
-                ON MTMMIDDLE_".$mtm_counter.".".$join["COLUMN_NAME"]." = MTMEND_".$mtm_counter.".".$join["REFERENCED_COLUMN_NAME"]."
+                ON MTMMIDDLE_".$mtm_counter.".".$next_relation->mtm_middle_col_to." = MTMEND_".$mtm_counter.".".$next_relation->foreign_col."
                 ";
                 $mtm_counter++;
-            }
+            } 
+
+            $this->rel_finder->resetIterators();
         }
         $q_group = "";
-        if (is_array($this->mtm) && sizeof($this->mtm) > 0) 
+        if ($this->rel_finder->getNumMtmRelations() > 0) 
         {
             $q_group .= " GROUP BY A.id ";
         }
@@ -196,13 +150,18 @@ class CFetcher extends CDBOperation
                 if (!CDBConfig::isValidColumn($this->table, $column)) 
                 {
                     $found_mtm = false;
-                    foreach ($this->mtm as $join) 
+                    if (isset($this->rel_finder))
                     {
-                        if ($column === $join["COLUMN_NAME"]."_mtm") 
+                        do 
                         {
-                            $found_mtm = true;
-                            break;
-                        }
+                            $next_relation = $this->rel_finder->GetNextMtmRelation();
+                            if ($column === $next_relation->mtm_middle_col_to."_mtm") 
+                            {
+                                $found_mtm = true;
+                                break;
+                            }
+                        } while ($next_relation !== null);
+                        $this->rel_finder->resetIterators();
                     }
                     if (!$found_mtm)
                     {

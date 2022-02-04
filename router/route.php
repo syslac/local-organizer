@@ -167,6 +167,11 @@ class CRoute
             
             case "":
             case "view":
+                if ($this->module == "version")
+                {
+                    echo CDefaultCfg::getCfgItem("api_version");
+                    break;
+                }
 
                 $this->embed_template("view/template/base.php",
                     array(

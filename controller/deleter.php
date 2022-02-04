@@ -81,4 +81,3 @@ class CDeleter extends CDBOperation
 };
 
 ?>
-

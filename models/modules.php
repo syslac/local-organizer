@@ -62,6 +62,16 @@ class CModule implements JsonSerializable
         );
     }
 
+    static public function getMobileFields() 
+    {
+        return [
+            "id" => "id",
+            "text" => "module_name",
+            "extra" => null,
+        ];
+    }
+
+
     public function setModuleName(string $t) 
     {
         $this->module_name = $t;

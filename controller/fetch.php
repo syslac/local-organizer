@@ -221,9 +221,11 @@ class CFetcher extends CDBOperation
 
     public function getResults(): string
     {
+        $mobile_fields = [];
         if ($this->pdoFetchMode == PDO::FETCH_CLASS) 
         {
             $this->results = $this->executeOperation()->fetchAll($this->pdoFetchMode, $this->obj);
+            $mobile_fields = $this->obj::getMobileFields();
         }
         else 
         {
@@ -233,16 +235,16 @@ class CFetcher extends CDBOperation
         {
             if (sizeof($this->results) > 0)
             {
-                return json_encode(["mode" => "edit", "module" => $this->module, "data" => $this->results]);
+                return json_encode(["mode" => "edit", "module" => $this->module, "data" => $this->results, "mobile" => $mobile_fields]);
             }
             else 
             {
-                return json_encode(["mode" => "edit", "module" => $this->module, "data" => [new $this->obj]]);
+                return json_encode(["mode" => "edit", "module" => $this->module, "data" => [new $this->obj], "mobile" => $mobile_fields]);
             }
         }
         else 
         {
-            return json_encode(["mode" => "view", "data" => $this->results]);
+            return json_encode(["mode" => "view", "data" => $this->results, "mobile" => $mobile_fields]);
         }
     }
 };

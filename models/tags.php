@@ -28,6 +28,15 @@ class CTag implements JsonSerializable
         );
     }
 
+    static public function getMobileFields() 
+    {
+        return [
+            "id" => "id",
+            "text" => "name",
+            "extra" => null,
+        ];
+    }
+
     public function setName(string $t) 
     {
         $this->name = $t;

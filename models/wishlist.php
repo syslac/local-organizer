@@ -110,6 +110,15 @@ class CWishlist implements JsonSerializable
 
     }
 
+    static public function getMobileFields() 
+    {
+        return [
+            "id" => "id",
+            "text" => "item",
+            "extra" => "id_for_user",
+        ];
+    }
+
     public function setIdForUser(int $i) 
     {
         $this->id_for_user = $i;

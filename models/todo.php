@@ -83,6 +83,15 @@ class CTodo implements JsonSerializable
         );
     }
 
+    static public function getMobileFields() 
+    {
+        return [
+            "id" => "id",
+            "text" => "title",
+            "extra" => "due_date",
+        ];
+    }
+
     public function setTitle(string $t) 
     {
         $this->title = $t;

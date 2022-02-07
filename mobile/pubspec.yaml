@@ -33,6 +33,7 @@ dependencies:
   async:
   shared_preferences:
   tuple:
+  provider:
 
 
   # The following adds the Cupertino Icons font to your application.

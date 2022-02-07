@@ -76,16 +76,43 @@ class HttpUtils {
     }
   }
 
-  static List<String> _parseJson(String inJson, String wantedField) {
-    List<String> retList = [];
+  static Tuple3<List<String>, List<String>, List<String>> _parseJson(
+      String inJson) {
+    Tuple3<List<String>, List<String>, List<String>> retList =
+        Tuple3<List<String>, List<String>, List<String>>([], [], []);
     if (inJson == "") {
-      retList;
+      return retList;
     }
     var data = jsonDecode(inJson) as Map;
+    String idField = "";
+    String textField = "";
+    String extraField = "";
+    if (data.containsKey("mobile")) {
+      var mapMobile = data["mobile"] as Map;
+      if (mapMobile.containsKey("id") &&
+          mapMobile.containsKey("text") &&
+          mapMobile.containsKey("extra")) {
+        idField = mapMobile["id"] ?? "";
+        textField = mapMobile["text"] ?? "";
+        extraField = mapMobile["extra"] ?? "";
+      }
+    }
     for (var element in data["data"]) {
       var mapElement = element as Map;
-      if (mapElement.containsKey(wantedField)) {
-        retList.add(element[wantedField]["data"].toString());
+      if (mapElement.containsKey(idField)) {
+        retList.item1.add(element[idField]["data"].toString());
+      } else {
+        retList.item1.add('');
+      }
+      if (mapElement.containsKey(textField)) {
+        retList.item2.add(element[textField]["data"].toString());
+      } else {
+        retList.item1.add('');
+      }
+      if (mapElement.containsKey(extraField)) {
+        retList.item3.add(element[extraField]["data"].toString());
+      } else {
+        retList.item1.add('');
       }
     }
     return retList;
@@ -140,7 +167,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _reInitSharedPref();
     HttpUtils._getSPJson().then((res) {
       setState(() {
-        _mainListView = HttpUtils._parseJson(res, "module_name");
+        var parsed = HttpUtils._parseJson(res);
+        _mainListView = parsed.item2;
       });
     });
   }
@@ -180,7 +208,8 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs.setString('modules', res);
       setState(() {
         _json = (prefs.getString('modules') ?? '');
-        _mainListView = HttpUtils._parseJson(_json, "module_name");
+        var parsed = HttpUtils._parseJson(_json);
+        _mainListView = parsed.item2;
       });
     });
   }
@@ -266,10 +295,10 @@ class ModuleScreenState extends State<ModuleScreen> {
       prefs.setString(_module, res);
       setState(() {
         _children = (prefs.getString(_module) ?? '');
-        List<String> itemsList = HttpUtils._parseJson(_children, "item");
-        List<String> peopleList =
-            HttpUtils._parseJson(_children, "id_for_user");
-        List<String> idList = HttpUtils._parseJson(_children, "id");
+        var parsed = HttpUtils._parseJson(_children);
+        List<String> idList = parsed.item1;
+        List<String> itemsList = parsed.item2;
+        List<String> peopleList = parsed.item3;
         for (int i = 0; i < itemsList.length; i++) {
           _childrenList.add(Tuple3<int, String, String>(
               int.parse(idList[i]), itemsList[i], peopleList[i]));

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 import 'package:provider/provider.dart';
 import 'httpUtils.dart';
 import 'networkState.dart';
+import 'cachedState.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => NetworkState(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => NetworkState()),
+      ChangeNotifierProvider(create: (context) => CachedState()),
+    ],
     child: const MyApp(),
   ));
 }
@@ -22,7 +25,7 @@ class MyApp extends StatelessWidget {
     return Consumer<NetworkState>(
       builder: (context, value, child) {
         return MaterialApp(
-          title: 'Local Organizer Demo',
+          title: 'Local Organizer',
           theme: ThemeData(
             primarySwatch: value.getCurrentColor(),
           ),
@@ -53,17 +56,13 @@ class ModuleScreen extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _json = "";
   List<String> _mainListView = [];
 
-  _MyHomePageState() {
-    _reInitSharedPref();
-  }
+  _MyHomePageState();
 
   @override
   void initState() {
     super.initState();
-    _reInitSharedPref();
     HttpUtils.getSPJson().then((res) {
       setState(() {
         var parsed = HttpUtils.parseJson(res);
@@ -72,26 +71,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _reInitSharedPref() async {
-    try {
-      SharedPreferences pref = await SharedPreferences.getInstance();
-      _json = (pref.getString('modules') ?? '');
-    } catch (_) {
-      SharedPreferences.setMockInitialValues({});
-    }
-  }
-
   void _refreshData() {
     if (Provider.of<NetworkState>(context, listen: false).getLastStatus() ==
         HttpUtils.timedOut) {
       return;
     }
-    HttpUtils.queryApi('modules/fetch').then((res) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('modules', res);
+    HttpUtils.queryApi('modules/fetch').then((res) {
+      Provider.of<CachedState>(context, listen: false)
+          .cacheModuleData("modules", res);
       setState(() {
-        _json = (prefs.getString('modules') ?? '');
-        var parsed = HttpUtils.parseJson(_json);
+        var parsed = HttpUtils.parseJson(res);
         _mainListView = parsed.item2;
       });
     });
@@ -114,19 +103,25 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'Modules',
             ),
-            ListView.builder(
-                padding: const EdgeInsets.all(5),
-                shrinkWrap: true,
-                itemCount: _mainListView.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                      title: Text(_mainListView[index]),
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ModuleScreen(module: _mainListView[index]))));
-                }),
+            Consumer<CachedState>(
+              builder: (context, value, child) {
+                _mainListView =
+                    value.getDecodedCachedModuleData("modules").item2;
+                return ListView.builder(
+                    padding: const EdgeInsets.all(5),
+                    shrinkWrap: true,
+                    itemCount: _mainListView.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                          title: Text(_mainListView[index]),
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ModuleScreen(
+                                      module: _mainListView[index]))));
+                    });
+              },
+            )
           ],
         ),
       ),
@@ -141,29 +136,38 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class ModuleScreenState extends State<ModuleScreen> {
   String _module = "";
-  String _children = "";
   List<Tuple3<int, String, String>> _childrenList = [];
 
   ModuleScreenState(String mod) {
     _module = mod;
   }
 
+  List<Tuple3<int, String, String>> _decodedJsonToLocalState(
+      Tuple3<List<String>, List<String>, List<String>> inJson) {
+    List<Tuple3<int, String, String>> toRet = [];
+    List<String> idList = inJson.item1;
+    List<String> itemsList = inJson.item2;
+    List<String> peopleList = inJson.item3;
+    for (int i = 0; i < itemsList.length; i++) {
+      toRet.add(Tuple3<int, String, String>(
+          int.parse(idList[i]), itemsList[i], peopleList[i]));
+    }
+    return toRet;
+  }
+
   @override
   void initState() {
     super.initState();
-    HttpUtils.queryApi(_module + '/fetch').then((res) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString(_module, res);
+    if (Provider.of<NetworkState>(context, listen: false).getLastStatus() ==
+        HttpUtils.timedOut) {
+      return;
+    }
+    HttpUtils.queryApi(_module + '/fetch').then((res) {
+      Provider.of<CachedState>(context, listen: false)
+          .cacheModuleData(_module, res);
       setState(() {
-        _children = (prefs.getString(_module) ?? '');
-        var parsed = HttpUtils.parseJson(_children);
-        List<String> idList = parsed.item1;
-        List<String> itemsList = parsed.item2;
-        List<String> peopleList = parsed.item3;
-        for (int i = 0; i < itemsList.length; i++) {
-          _childrenList.add(Tuple3<int, String, String>(
-              int.parse(idList[i]), itemsList[i], peopleList[i]));
-        }
+        var parsed = HttpUtils.parseJson(res);
+        _childrenList = _decodedJsonToLocalState(parsed);
       });
     });
   }
@@ -179,23 +183,30 @@ class ModuleScreenState extends State<ModuleScreen> {
         )
       ]),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-            padding: const EdgeInsets.all(5),
-            shrinkWrap: true,
-            itemCount: _childrenList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                  title: Text(_childrenList[index].item2 +
-                      " | for " +
-                      _childrenList[index].item3),
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ModuleScreen(
-                              module: _childrenList[index].item1.toString()))));
-            }),
-      ),
+          padding: const EdgeInsets.all(16.0),
+          child: Consumer<CachedState>(
+            builder: (context, value, child) {
+              _childrenList = _decodedJsonToLocalState(
+                  value.getDecodedCachedModuleData(_module));
+              return ListView.builder(
+                  padding: const EdgeInsets.all(5),
+                  shrinkWrap: true,
+                  itemCount: _childrenList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                        title: Text(_childrenList[index].item2 +
+                            " | for " +
+                            _childrenList[index].item3),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ModuleScreen(
+                                    module: _childrenList[index]
+                                        .item1
+                                        .toString()))));
+                  });
+            },
+          )),
     );
   }
 }

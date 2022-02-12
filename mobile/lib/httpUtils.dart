@@ -89,4 +89,25 @@ class HttpUtils {
     }
     return retList;
   }
+
+  static Map<dynamic, dynamic> getSingleItemFromJson(String inJson, int id) {
+    if (inJson == "" || id <= 0) {
+      return {};
+    }
+    Map<dynamic, dynamic> data = jsonDecode(inJson) as Map;
+    if (!data.containsKey("data")) {
+      return {};
+    }
+    List<dynamic> elementList = data["data"] as List;
+    Map<dynamic, dynamic> foundItem = {};
+    for (var element in elementList) {
+      Map<dynamic, dynamic> mapEl = element as Map;
+      if (mapEl.containsKey("id") && (mapEl["id"] as Map).containsKey("data")) {
+        if (mapEl["id"]["data"] == id) {
+          foundItem = mapEl;
+        }
+      }
+    }
+    return foundItem;
+  }
 }

@@ -13,8 +13,14 @@ class NetworkState extends ChangeNotifier {
 
   void _checkOnline() {
     HttpUtils.queryApiVersion().then((res) {
+      bool needNotify = false;
+      if (_lastHttpStatus != res) {
+        needNotify = true;
+      }
       _lastHttpStatus = res;
-      notifyListeners();
+      if (needNotify) {
+        notifyListeners();
+      }
     });
   }
 

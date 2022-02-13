@@ -122,7 +122,18 @@ class CRoute
                 }
                 echo $ret->getResults();
                 break;
-            
+            case "fetch_ext":
+                $ret = new CFetcher(CDBConfig::getInstance(), '', null, new CNullRelationFinder());
+                $ret->setConnInfo($this->module, '');
+                $ret->setFetchExt();
+                $ret->setOperationParams([]);
+                $res = [];
+                foreach($ret->getRawResults() as $it)
+                {
+                    $res[$it['id']] = $it['name'];
+                }
+                echo json_encode($res);
+                break;
             case "edit":
                 $ret = new CEditor(CDBConfig::getInstance(), $this->module, $module_fetcher);
                 $ret->setOperationParams([

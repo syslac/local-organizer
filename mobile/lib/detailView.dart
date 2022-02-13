@@ -3,6 +3,7 @@ import 'httpUtils.dart';
 import 'package:provider/provider.dart';
 import 'networkState.dart';
 import 'cachedState.dart';
+import 'editView.dart';
 
 class DetailScreen extends StatelessWidget {
   // In the constructor, require a Module.
@@ -71,7 +72,7 @@ class DetailScreen extends StatelessWidget {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => DetailScreen(module: module, id: id))),
+                builder: (context) => EditScreen(module: module, id: id))),
         tooltip: 'Edit',
         child: const Icon(Icons.edit),
       ),

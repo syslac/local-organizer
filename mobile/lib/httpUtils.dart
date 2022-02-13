@@ -49,6 +49,18 @@ class HttpUtils {
     }
   }
 
+  static Map<int, String> parseExtJson(String inJson) {
+    Map<int, String> retMap = {};
+    if (inJson == "") {
+      return retMap;
+    }
+    Map<dynamic, dynamic> untypedMap = jsonDecode(inJson) as Map;
+    untypedMap.forEach((key, value) {
+      retMap[int.tryParse(key) ?? 0] = value.toString();
+    });
+    return retMap;
+  }
+
   static Tuple3<List<String>, List<String>, List<String>> parseJson(
       String inJson) {
     var retList = Tuple3<List<String>, List<String>, List<String>>([], [], []);

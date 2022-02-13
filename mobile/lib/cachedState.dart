@@ -16,7 +16,7 @@ class CachedState extends ChangeNotifier {
   void _reInitSharedPref() async {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
-      _cachedModulesJson["modules"] = (pref.getString('get_modules') ?? '');
+      _cachedModulesJson["modules"] = (pref.getString('get+modules') ?? '');
       notifyListeners();
     } catch (_) {
       SharedPreferences.setMockInitialValues({});
@@ -27,7 +27,7 @@ class CachedState extends ChangeNotifier {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       pref.getKeys().forEach((element) {
-        List<String> parts = element.split("_");
+        List<String> parts = element.split("+");
         if (parts.length == 2 && parts[0] == "get") {
           _cachedModulesJson[parts[1]] = pref.getString(element) ?? '';
         } else if (parts.length == 3 && parts[0] == "post") {
@@ -53,7 +53,7 @@ class CachedState extends ChangeNotifier {
       _cachedModulesJson[module] = data;
       notifyListeners();
       SharedPreferences pref = await SharedPreferences.getInstance();
-      pref.setString("get_" + module, data);
+      pref.setString("get+" + module, data);
     }
   }
 }

@@ -12,9 +12,6 @@ class DetailScreen extends StatelessWidget {
   final String module;
   final int id;
 
-  //@override
-  //State<DetailScreen> createState() => DetailScreenState(this.module, this.id);
-
   Map<String, String> _updateDisplayData(String allModuleData) {
     var parsed = HttpUtils.getSingleItemFromJson(allModuleData, id);
     Map<String, String> retVal = {};
@@ -81,15 +78,3 @@ class DetailScreen extends StatelessWidget {
     );
   }
 }
-
-//class DetailScreenState extends State<DetailScreen> {
-//  String _module = "";
-//  int _id = 0;
-//  Map<String, String> _displayData = {};
-//
-//  DetailScreenState(String mod, int id) {
-//    _module = mod;
-//    _id = id;
-//  }
-//
-//}

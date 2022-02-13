@@ -6,23 +6,14 @@ import 'networkState.dart';
 import 'cachedState.dart';
 import 'detailView.dart';
 
-class ModuleScreen extends StatefulWidget {
+class ModuleScreen extends StatelessWidget {
   // In the constructor, require a Module.
   ModuleScreen({Key? key, required this.module}) : super(key: key);
   // Declare a field that holds the Module.
   final String module;
 
-  @override
-  State<ModuleScreen> createState() => ModuleScreenState(this.module);
-}
-
-class ModuleScreenState extends State<ModuleScreen> {
-  String _module = "";
-  List<Tuple3<int, String, String>> _childrenList = [];
-
-  ModuleScreenState(String mod) {
-    _module = mod;
-  }
+  //@override
+  //State<ModuleScreen> createState() => ModuleScreenState(this.module);
 
   List<Tuple3<int, String, String>> _decodedJsonToLocalState(
       Tuple3<List<String>, List<String>, List<String>> inJson) {
@@ -38,26 +29,19 @@ class ModuleScreenState extends State<ModuleScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    if (Provider.of<NetworkState>(context, listen: false).getLastStatus() ==
+  Widget build(BuildContext context) {
+    List<Tuple3<int, String, String>> _childrenList = [];
+    if (Provider.of<NetworkState>(context, listen: false).getLastStatus() !=
         HttpUtils.timedOut) {
-      return;
-    }
-    HttpUtils.queryApi(_module + '/fetch').then((res) {
-      Provider.of<CachedState>(context, listen: false)
-          .cacheModuleData(_module, res);
-      setState(() {
+      HttpUtils.queryApi(module + '/fetch').then((res) {
+        Provider.of<CachedState>(context, listen: false)
+            .cacheModuleData(module, res);
         var parsed = HttpUtils.parseJson(res);
         _childrenList = _decodedJsonToLocalState(parsed);
       });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    }
     return Scaffold(
-      appBar: AppBar(title: Text(_module), actions: <Widget>[
+      appBar: AppBar(title: Text(module), actions: <Widget>[
         Consumer<NetworkState>(
           builder: (context, value, child) {
             return Text(value.getConnectionString());
@@ -69,7 +53,7 @@ class ModuleScreenState extends State<ModuleScreen> {
           child: Consumer<CachedState>(
             builder: (context, value, child) {
               _childrenList = _decodedJsonToLocalState(
-                  value.getDecodedCachedModuleData(_module));
+                  value.getDecodedCachedModuleData(module));
               return ListView.builder(
                   padding: const EdgeInsets.all(5),
                   shrinkWrap: true,
@@ -84,7 +68,7 @@ class ModuleScreenState extends State<ModuleScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => DetailScreen(
-                                    module: _module,
+                                    module: module,
                                     id: _childrenList[index].item1))));
                   });
             },
@@ -93,7 +77,7 @@ class ModuleScreenState extends State<ModuleScreen> {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => DetailScreen(module: _module, id: 0))),
+                builder: (context) => DetailScreen(module: module, id: 0))),
         tooltip: 'New',
         child: const Icon(Icons.add),
       ),

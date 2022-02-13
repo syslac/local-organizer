@@ -30,9 +30,9 @@ class NetworkState extends ChangeNotifier {
 
   MaterialColor getCurrentColor() {
     if (_lastHttpStatus == HttpUtils.timedOut) {
-      return Colors.red;
+      return Colors.grey;
     } else {
-      return Colors.blue;
+      return Colors.green;
     }
   }
 

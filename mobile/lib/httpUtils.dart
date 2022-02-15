@@ -122,4 +122,27 @@ class HttpUtils {
     }
     return foundItem;
   }
+
+  static Map<dynamic, dynamic> buildEmptyItemFromJson(String inJson) {
+    if (inJson == "") {
+      return {};
+    }
+    Map<dynamic, dynamic> data = jsonDecode(inJson) as Map;
+    if (!data.containsKey("data")) {
+      return {};
+    }
+    List<dynamic> elementList = data["data"] as List;
+    Map<dynamic, dynamic> foundItem = {};
+    if (elementList.isNotEmpty) {
+      var element = elementList[0];
+      Map<dynamic, dynamic> mapEl = element as Map;
+      mapEl.forEach((key, value) {
+        Map<dynamic, dynamic> singleField = value as Map;
+        singleField["data"] = "";
+        singleField["edit_data"] = "";
+        foundItem[key] = singleField;
+      });
+    }
+    return foundItem;
+  }
 }

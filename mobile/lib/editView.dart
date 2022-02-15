@@ -49,6 +49,10 @@ class _ExternalDropdownState extends State<ExternalDropdown> {
 
   List<DropdownMenuItem<String>> _buildMenuItems(String jsonOpt) {
     List<DropdownMenuItem<String>> menuItems = [];
+    menuItems.add(const DropdownMenuItem(
+      child: Text("None"),
+      value: "",
+    ));
     Map<int, String> parsedOptions = HttpUtils.parseExtJson(jsonOpt);
     parsedOptions.forEach((key, value) {
       menuItems.add(DropdownMenuItem(
@@ -94,6 +98,9 @@ class EditScreen extends StatelessWidget {
   Map<String, Tuple3<String, String, String>> _updateDisplayData(
       String allModuleData) {
     var parsed = HttpUtils.getSingleItemFromJson(allModuleData, id);
+    if (parsed.isEmpty) {
+      parsed = HttpUtils.buildEmptyItemFromJson(allModuleData);
+    }
     Map<String, Tuple3<String, String, String>> retVal = {};
     parsed.forEach((key, value) {
       Map<dynamic, dynamic> convertedValue = value as Map;

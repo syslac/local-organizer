@@ -5,6 +5,7 @@ import 'package:tuple/tuple.dart';
 import 'networkState.dart';
 import 'cachedState.dart';
 import 'detailView.dart';
+import 'editView.dart';
 
 class ModuleScreen extends StatelessWidget {
   // In the constructor, require a Module.
@@ -77,7 +78,7 @@ class ModuleScreen extends StatelessWidget {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => DetailScreen(module: module, id: 0))),
+                builder: (context) => EditScreen(module: module, id: 0))),
         tooltip: 'New',
         child: const Icon(Icons.add),
       ),

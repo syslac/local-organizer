@@ -4,26 +4,33 @@ import 'package:provider/provider.dart';
 import 'networkState.dart';
 import 'cachedState.dart';
 import 'package:tuple/tuple.dart';
+import 'moduleView.dart';
 
 class ExternalDropdown extends StatefulWidget {
   const ExternalDropdown(
-      {Key? key, required this.extModule, required this.curVal})
+      {Key? key,
+      required this.idField,
+      required this.extModule,
+      required this.curVal})
       : super(key: key);
 
   final String extModule;
   final String curVal;
+  final String idField;
 
   @override
   State<ExternalDropdown> createState() =>
-      _ExternalDropdownState(extModule, curVal);
+      _ExternalDropdownState(idField, extModule, curVal);
 }
 
 class _ExternalDropdownState extends State<ExternalDropdown> {
   List<DropdownMenuItem<String>> _items = [];
   String _selected = "";
   String _extModule = "";
+  String _idField = "";
 
-  _ExternalDropdownState(String mod, String curVal) {
+  _ExternalDropdownState(String idField, String mod, String curVal) {
+    _idField = idField;
     _extModule = mod;
     _selected = curVal;
   }
@@ -71,9 +78,14 @@ class _ExternalDropdownState extends State<ExternalDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton(
+    return DropdownButtonFormField(
       items: _items,
       value: _selected,
+      onSaved: (value) {
+        context
+            .findAncestorStateOfType<_EditScreenState>()
+            ?._savedValues[_idField] = value.toString();
+      },
       onChanged: (String? newVal) {
         if (newVal != null && newVal != _selected) {
           setState(() {
@@ -86,14 +98,28 @@ class _ExternalDropdownState extends State<ExternalDropdown> {
   }
 }
 
-class EditScreen extends StatelessWidget {
+class EditScreen extends StatefulWidget {
   // In the constructor, require a Module.
   EditScreen({Key? key, required this.module, required this.id})
       : super(key: key);
   // Declare a field that holds the Module.
   final String module;
   final int id;
+
+  @override
+  _EditScreenState createState() => _EditScreenState(module, id);
+}
+
+class _EditScreenState extends State<EditScreen> {
   final _formKey = GlobalKey<FormState>();
+  String module = "";
+  int id = 0;
+  Map<String, String> _savedValues = {};
+
+  _EditScreenState(String mod, int i) {
+    module = mod;
+    id = i;
+  }
 
   Map<String, Tuple3<String, String, String>> _updateDisplayData(
       String allModuleData) {
@@ -126,37 +152,37 @@ class EditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(module), actions: <Widget>[
-        Consumer<NetworkState>(
+        appBar: AppBar(title: Text(module), actions: <Widget>[
+          Consumer<NetworkState>(
+            builder: (context, value, child) {
+              return Text(value.getConnectionString());
+            },
+          )
+        ]),
+        body: Consumer<CachedState>(
           builder: (context, value, child) {
-            return Text(value.getConnectionString());
-          },
-        )
-      ]),
-      body: Consumer<CachedState>(
-        builder: (context, value, child) {
-          var modData = value.getCachedModuleData(module);
-          Map<String, Tuple3<String, String, String>> _displayData =
-              _updateDisplayData(modData);
-          return Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  ListView.builder(
-                      padding: const EdgeInsets.all(5),
-                      shrinkWrap: true,
-                      itemCount: _displayData.length * 3,
-                      itemBuilder: (BuildContext context, int index) {
-                        int i = index ~/ 3;
-                        switch (index % 3) {
-                          case 0:
-                            return Text(_displayData.keys.elementAt(i));
-                          case 1:
-                            switch (_displayData.values.elementAt(i).item2) {
-                              case "date":
-                                return InputDatePickerFormField(
+            var modData = value.getCachedModuleData(module);
+            Map<String, Tuple3<String, String, String>> _displayData =
+                _updateDisplayData(modData);
+            return Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    ListView.builder(
+                        padding: const EdgeInsets.all(5),
+                        shrinkWrap: true,
+                        itemCount: _displayData.length * 3,
+                        itemBuilder: (BuildContext context, int index) {
+                          int i = index ~/ 3;
+                          switch (index % 3) {
+                            case 0:
+                              return Text(_displayData.keys.elementAt(i));
+                            case 1:
+                              switch (_displayData.values.elementAt(i).item2) {
+                                case "date":
+                                  return InputDatePickerFormField(
                                     initialDate: _displayData.values
                                                 .elementAt(i)
                                                 .item1 ==
@@ -165,50 +191,75 @@ class EditScreen extends StatelessWidget {
                                         : DateTime.parse(_displayData.values
                                             .elementAt(i)
                                             .item1),
+                                    onDateSaved: (date) {
+                                      _savedValues[_displayData.keys
+                                          .elementAt(i)] = date.toString();
+                                    },
                                     firstDate: DateTime.now().subtract(
                                         const Duration(days: 365 * 10)),
                                     lastDate: DateTime.now()
-                                        .add(const Duration(days: 365 * 10)));
-                              case "external":
-                                return ExternalDropdown(
-                                    extModule:
-                                        _displayData.values.elementAt(i).item3,
-                                    curVal:
-                                        _displayData.values.elementAt(i).item1);
-                              case "text":
-                              default:
-                                return TextFormField(
-                                  initialValue:
-                                      _displayData.values.elementAt(i).item1,
-                                );
-                            }
-                          case 2:
-                          default:
-                            return const Divider(
-                              height: 20,
-                              thickness: 2,
-                              indent: 10,
-                              endIndent: 10,
-                            );
-                        }
-                      }),
-                  ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {}
-                      },
-                      child: const Text("Submit")),
-                ],
-              )));
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => EditScreen(module: module, id: id))),
-        tooltip: 'Edit',
-        child: const Icon(Icons.edit),
-      ),
-    );
+                                        .add(const Duration(days: 365 * 10)),
+                                  );
+                                case "external":
+                                  return ExternalDropdown(
+                                      idField: _displayData.keys.elementAt(i),
+                                      extModule: _displayData.values
+                                          .elementAt(i)
+                                          .item3,
+                                      curVal: _displayData.values
+                                          .elementAt(i)
+                                          .item1);
+                                case "text":
+                                default:
+                                  return TextFormField(
+                                    initialValue:
+                                        _displayData.values.elementAt(i).item1,
+                                    onSaved: (fieldVal) {
+                                      _savedValues[_displayData.keys
+                                          .elementAt(i)] = fieldVal ?? "";
+                                    },
+                                  );
+                              }
+                            case 2:
+                            default:
+                              return const Divider(
+                                height: 20,
+                                thickness: 2,
+                                indent: 10,
+                                endIndent: 10,
+                              );
+                          }
+                        }),
+                  ],
+                )));
+          },
+        ),
+        floatingActionButton:
+            Consumer<NetworkState>(builder: (context, valueNet, child) {
+          return Consumer<CachedState>(builder: (context, valueCache, child) {
+            bool isOnline = valueNet.getLastStatus() != HttpUtils.timedOut;
+            return FloatingActionButton(
+              onPressed: () {
+                //if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
+                var data = _savedValues;
+                //HttpUtils.buildRequestFromForm();
+                if (isOnline) {
+                  //HttpUtils.postEdit(data, module, id);
+                } else {
+                  valueCache.cacheModuleData(
+                      "post+" + module + "+" + id.toString(), data.toString());
+                }
+                //}
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ModuleScreen(module: module)));
+              },
+              tooltip: 'Edit',
+              child: const Icon(Icons.check),
+            );
+          });
+        }));
   }
 }

@@ -84,7 +84,7 @@ class _ExternalDropdownState extends State<ExternalDropdown> {
       onSaved: (value) {
         context
             .findAncestorStateOfType<_EditScreenState>()
-            ?._savedValues[_idField] = value.toString();
+            ?._savedValues[_idField.toLowerCase()] = value.toString();
       },
       onChanged: (String? newVal) {
         if (newVal != null && newVal != _selected) {
@@ -121,13 +121,13 @@ class _EditScreenState extends State<EditScreen> {
     id = i;
   }
 
-  Map<String, Tuple3<String, String, String>> _updateDisplayData(
+  Map<String, Tuple4<String, String, String, String>> _updateDisplayData(
       String allModuleData) {
     var parsed = HttpUtils.getSingleItemFromJson(allModuleData, id);
     if (parsed.isEmpty) {
       parsed = HttpUtils.buildEmptyItemFromJson(allModuleData);
     }
-    Map<String, Tuple3<String, String, String>> retVal = {};
+    Map<String, Tuple4<String, String, String, String>> retVal = {};
     parsed.forEach((key, value) {
       Map<dynamic, dynamic> convertedValue = value as Map;
       if (!convertedValue.containsKey("header") ||
@@ -141,7 +141,8 @@ class _EditScreenState extends State<EditScreen> {
       String displayData = convertedValue["edit_data"] == null
           ? ""
           : convertedValue["edit_data"].toString();
-      retVal[convertedValue["header"]] = Tuple3<String, String, String>(
+      retVal[key] = Tuple4<String, String, String, String>(
+          convertedValue["header"],
           displayData,
           convertedValue["type"] ?? "text",
           convertedValue["ext_module"] ?? "");
@@ -162,7 +163,7 @@ class _EditScreenState extends State<EditScreen> {
         body: Consumer<CachedState>(
           builder: (context, value, child) {
             var modData = value.getCachedModuleData(module);
-            Map<String, Tuple3<String, String, String>> _displayData =
+            Map<String, Tuple4<String, String, String, String>> _displayData =
                 _updateDisplayData(modData);
             return Form(
                 key: _formKey,
@@ -178,22 +179,24 @@ class _EditScreenState extends State<EditScreen> {
                           int i = index ~/ 3;
                           switch (index % 3) {
                             case 0:
-                              return Text(_displayData.keys.elementAt(i));
+                              return Text(
+                                  _displayData.values.elementAt(i).item1);
                             case 1:
-                              switch (_displayData.values.elementAt(i).item2) {
+                              switch (_displayData.values.elementAt(i).item3) {
                                 case "date":
                                   return InputDatePickerFormField(
                                     initialDate: _displayData.values
                                                 .elementAt(i)
-                                                .item1 ==
+                                                .item2 ==
                                             ""
                                         ? null
                                         : DateTime.parse(_displayData.values
                                             .elementAt(i)
-                                            .item1),
+                                            .item2),
                                     onDateSaved: (date) {
                                       _savedValues[_displayData.keys
-                                          .elementAt(i)] = date.toString();
+                                          .elementAt(i)
+                                          .toLowerCase()] = date.toString();
                                     },
                                     firstDate: DateTime.now().subtract(
                                         const Duration(days: 365 * 10)),
@@ -205,18 +208,19 @@ class _EditScreenState extends State<EditScreen> {
                                       idField: _displayData.keys.elementAt(i),
                                       extModule: _displayData.values
                                           .elementAt(i)
-                                          .item3,
+                                          .item4,
                                       curVal: _displayData.values
                                           .elementAt(i)
-                                          .item1);
+                                          .item2);
                                 case "text":
                                 default:
                                   return TextFormField(
                                     initialValue:
-                                        _displayData.values.elementAt(i).item1,
+                                        _displayData.values.elementAt(i).item2,
                                     onSaved: (fieldVal) {
                                       _savedValues[_displayData.keys
-                                          .elementAt(i)] = fieldVal ?? "";
+                                          .elementAt(i)
+                                          .toLowerCase()] = fieldVal ?? "";
                                     },
                                   );
                               }
@@ -243,9 +247,8 @@ class _EditScreenState extends State<EditScreen> {
                 //if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 var data = _savedValues;
-                //HttpUtils.buildRequestFromForm();
                 if (isOnline) {
-                  //HttpUtils.postEdit(data, module, id);
+                  HttpUtils.postEdit(data, module, id);
                 } else {
                   valueCache.cacheModuleData(
                       "post+" + module + "+" + id.toString(), data.toString());

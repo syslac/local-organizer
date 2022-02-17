@@ -145,4 +145,22 @@ class HttpUtils {
     }
     return foundItem;
   }
+
+  static Future<bool> postEdit(
+      Map<String, String> data, String module, int id) async {
+    Uri url;
+    if (id == 0) {
+      url = Uri.parse(apiRoot + module + '/add');
+    } else {
+      url = Uri.parse(apiRoot + module + '/edit/id/' + id.toString());
+    }
+
+    var response = await http.post(url, body: data);
+
+    if (response.statusCode == 302) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

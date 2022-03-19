@@ -147,7 +147,7 @@ class HttpUtils {
   }
 
   static Future<bool> postEdit(
-      Map<String, String> data, String module, int id) async {
+      Map<dynamic, dynamic> data, String module, int id) async {
     Uri url;
     if (id == 0) {
       url = Uri.parse(apiRoot + module + '/add');

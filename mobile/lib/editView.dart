@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'httpUtils.dart';
 import 'package:provider/provider.dart';
@@ -250,8 +252,8 @@ class _EditScreenState extends State<EditScreen> {
                 if (isOnline) {
                   HttpUtils.postEdit(data, module, id);
                 } else {
-                  valueCache.cacheModuleData(
-                      "post+" + module + "+" + id.toString(), data.toString());
+                  valueCache.cacheEditData(
+                      module + "+" + id.toString(), jsonEncode(data));
                 }
                 //}
                 Navigator.push(

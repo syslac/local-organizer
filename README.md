@@ -25,14 +25,15 @@ There are 3 main components:
 Backend is modular, a new "list" type should be trivially insertable by adding SQL table and model class structure.
 
 ![mobile_online](/media/mobile1.jpg)
-![mobile_offline](/media/mobile2.jpg)
 
 ## Ok, but Why? 
 
 It was a "study" project, I used the parts to learn or refresh some things, for example:
 *   Design patterns and testing, in the PHP backend
 *   Basics of security for web apps
-*   Getting a test on how to reimplement common web framework features, 
+*   Getting a taste of how to re-implement common web framework features, 
     like pretty-urls and templating
 
 And last but not least, it's my first Flutter app and mobile frontend (and so probably pretty horrible).
+
+![mobile_offline](/media/mobile2.jpg)

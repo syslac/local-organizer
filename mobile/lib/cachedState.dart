@@ -72,6 +72,16 @@ class CachedState extends ChangeNotifier {
     }
   }
 
+  void addToCachedView(String module, int id, Map<String, String> data) {
+    String oldCachedJson = _cachedModulesJson[module] ?? "";
+    bool isEditedItem = HttpUtils.dataJsonHasId(oldCachedJson, id);
+    if (isEditedItem) {
+      cacheModuleData(module, HttpUtils.editJsonId(oldCachedJson, id, data));
+    } else {
+      cacheModuleData(module, HttpUtils.addToJson(oldCachedJson, data));
+    }
+  }
+
   Tuple3<String, String, String> returnFromQueue() {
     return _offlineUpdatesQueue.removeFirst();
   }

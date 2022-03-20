@@ -61,6 +61,87 @@ class HttpUtils {
     return retMap;
   }
 
+  static bool dataJsonHasId(String inJson, int id) {
+    if (inJson == "") {
+      return false;
+    }
+    var data = jsonDecode(inJson) as Map;
+    for (var element in data["data"]) {
+      var mapElement = element as Map;
+      if (!mapElement.containsKey("id")) {
+        continue;
+      }
+      var mapFieldData = mapElement["id"] as Map;
+      if (mapFieldData.containsKey("data") && mapFieldData["data"] == id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String editJsonId(String inJson, int id, Map<String, String> newData) {
+    if (inJson == "") {
+      return "";
+    }
+    var origData = jsonDecode(inJson);
+    var data = origData as Map;
+    int i = 0;
+    for (var element in data["data"]) {
+      var mapElement = element as Map;
+      if (!mapElement.containsKey("id")) {
+        continue;
+      }
+      var mapFieldData = mapElement["id"] as Map;
+      if (mapFieldData.containsKey("data") && mapFieldData["data"] == id) {
+        newData.forEach((key, value) {
+          if (mapElement.containsKey(key) &&
+              (mapElement[key] as Map).containsKey("data") &&
+              (mapElement[key] as Map).containsKey("edit_data")) {
+            origData["data"][i][key]["data"] = value;
+            origData["data"][i][key]["edit_data"] = value;
+          }
+        });
+      }
+      i++;
+    }
+    return jsonEncode(origData);
+  }
+
+  static String addToJson(String inJson, Map<String, String> newData) {
+    if (inJson == "") {
+      return "";
+    }
+    var origData = jsonDecode(inJson);
+    var data = origData as Map;
+    Map<dynamic, dynamic> lastElement = {};
+    int lastId = 0;
+    for (var element in data["data"]) {
+      var mapElement = element as Map;
+      if (!mapElement.containsKey("id")) {
+        continue;
+      }
+      var mapFieldData = mapElement["id"] as Map;
+      if (mapFieldData.containsKey("data") && mapFieldData["data"] >= lastId) {
+        lastId = mapFieldData["data"];
+        lastElement = jsonDecode(jsonEncode(mapElement));
+      }
+    }
+    if (lastElement.isNotEmpty) {
+      newData.forEach((key, value) {
+        if (lastElement.containsKey(key) &&
+            (lastElement[key] as Map).containsKey("data") &&
+            (lastElement[key] as Map).containsKey("edit_data")) {
+          lastElement[key]["data"] = value;
+          lastElement[key]["edit_data"] = value;
+        }
+      });
+      lastElement["id"]["data"] = lastId + 1;
+      origData["data"].add(lastElement);
+      return jsonEncode(origData);
+    }
+    return "";
+  }
+
   static Tuple3<List<String>, List<String>, List<String>> parseJson(
       String inJson) {
     var retList = Tuple3<List<String>, List<String>, List<String>>([], [], []);

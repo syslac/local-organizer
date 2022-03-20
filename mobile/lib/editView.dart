@@ -252,6 +252,7 @@ class _EditScreenState extends State<EditScreen> {
                 if (isOnline) {
                   HttpUtils.postEdit(data, module, id);
                 } else {
+                  valueCache.addToCachedView(module, id, data);
                   valueCache.cacheEditData(
                       module + "+" + id.toString(), jsonEncode(data));
                 }

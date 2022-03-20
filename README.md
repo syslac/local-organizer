@@ -12,7 +12,7 @@ Simple list-manager designed to be self-hosted; should be modular and easily ext
 Extra features are tag support almost everywhere, and "completion" support where it makes sense, e.g. Todos and wishlists.
 Most important missing feature (for now) is pagination.
 
-[web_fe](/media/desktop1.jpg)
+![web_fe](/media/desktop1.jpg)
 
 ### How it works
 
@@ -24,8 +24,8 @@ There are 3 main components:
 
 Backend is modular, a new "list" type should be trivially insertable by adding SQL table and model class structure.
 
-[mobile_online](/media/mobile1.jpg)
-[mobile_offline](/media/mobile2.jpg)
+![mobile_online](/media/mobile1.jpg)
+![mobile_offline](/media/mobile2.jpg)
 
 ## Ok, but Why? 
 

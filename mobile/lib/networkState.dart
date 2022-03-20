@@ -7,7 +7,7 @@ class NetworkState extends ChangeNotifier {
 
   NetworkState() {
     _checkOnline();
-    const interval = Duration(seconds: 5);
+    const interval = Duration(seconds: 30);
     Timer.periodic(interval, (Timer t) => _checkOnline());
   }
 

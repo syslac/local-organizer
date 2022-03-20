@@ -6,8 +6,7 @@ import 'package:tuple/tuple.dart';
 
 class HttpUtils {
   static const int timedOut = 408;
-  static const String apiRoot =
-      "http://192.168.1.42/WordPress/local_organizer/";
+  static const String apiRoot = "http://my-api.xyz";
 
   static Future<String> getSPJson() async {
     SharedPreferences pref = await SharedPreferences.getInstance();

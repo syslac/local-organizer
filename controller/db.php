@@ -31,6 +31,24 @@ class CDBConfig
             "module_table",
             "module_class",
         ),
+        "lo_groceries" => array(
+            "id",
+            "item",
+            "id_priority",
+            "qty",
+            "unit",
+            "deadline",
+        ),
+        "lo_bookmarks" => array(
+            "id",
+            "link",
+            "name",
+        ),
+        "lo_writing_prompts" => array(
+            "id",
+            "title",
+            "excerpt",
+        ),
         "lo_user" => array(
             "id",
             "name",
@@ -92,7 +110,7 @@ class CDBConfig
         return $this->dbo;
     }
 
-    public function getInstance() 
+    public static function getInstance() 
     {
         if (self::$dbObject == null)
         {
@@ -102,7 +120,7 @@ class CDBConfig
         return self::$dbObject->getHandle();
     }
 
-    public function isValidColumn($module, $column) 
+    public static function isValidColumn($module, $column) 
     {
         if (!array_key_exists($module, self::$validCols)) 
         {
@@ -111,22 +129,22 @@ class CDBConfig
         return in_array($column, self::$validCols[$module]);
     }
 
-    public function isValidTable($module) 
+    public static function isValidTable($module) 
     {
         return array_key_exists($module, self::$validCols); 
     }
 
-    public function hasDoneColumn($module)
+    public static function hasDoneColumn($module)
     {
         return array_key_exists($module, self::$doneCols); 
     }
 
-    public function getDoneColumn($module)
+    public static function getDoneColumn($module)
     {
         return self::$doneCols[$module]; 
     }
 
-    public function doSkipMtm($module)
+    public static function doSkipMtm($module)
     {
         return array_search($module, self::$skipMtm) !== false; 
     }

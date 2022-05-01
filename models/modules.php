@@ -71,6 +71,7 @@ class CModule implements JsonSerializable
         ];
     }
 
+
     public function setModuleName(string $t) 
     {
         $this->module_name = $t;

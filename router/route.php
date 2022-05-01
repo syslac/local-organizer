@@ -240,6 +240,8 @@ class CRoute
                     }
                 }
                 break;
+            default:
+                break;
         }
     }
 };

@@ -19,7 +19,7 @@ class CDeleter extends CDBOperation
         {
             $this->setOperationType(OpType::del);
         }
-        $this->query->setStatement("DELETE FROM ".$this->table);
+        $this->query->setStatement("UPDATE ".$this->table);
     }
 
     public function setOperationParams(array $pars) 
@@ -68,6 +68,7 @@ class CDeleter extends CDBOperation
                     {
                         if (CDBConfig::isValidColumn($this->table, $key) && $key == "id") 
                         {
+                            $this->query->addStatement(" SET is_deleted = 1 ");
                             $this->query->addStatement(" WHERE ".$key." = ?");
                             $this->query->addPlaceholder($val);
                         }

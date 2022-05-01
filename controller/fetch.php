@@ -8,6 +8,8 @@ require_once "models/wishlist.php";
 require_once "models/todo.php";
 require_once "models/tags.php";
 require_once "models/bookmarks.php";
+require_once "models/groceries.php";
+require_once "models/writing_prompts.php";
 
 class CFetcher extends CDBOperation
 {
@@ -146,7 +148,7 @@ class CFetcher extends CDBOperation
                 }
 
                 $innerWhere = " WHERE 1 ";
-                $outerWhere = " WHERE 1";
+                $outerWhere = " WHERE 1 ";
                 if (!CDBConfig::isValidColumn($this->table, $column)) 
                 {
                     $found_mtm = false;
@@ -169,12 +171,12 @@ class CFetcher extends CDBOperation
                     }
                     else 
                     {
-                        $outerWhere = " WHERE Q.".$column ." LIKE CONCAT('%', ?, '%') ";
+                        $outerWhere = " WHERE Q.".$column ." LIKE CONCAT('%', ?, '%') AND Q.is_deleted = 0";
                     }
                 }
                 else 
                 {
-                    $innerWhere = " WHERE A.".$column ." = ? ";
+                    $innerWhere = " WHERE A.".$column ." = ? AND A.is_deleted = 0";
                 }
                 $this->query->setStatement("SELECT * FROM (");
                 $this->query->addStatement($q_select);
@@ -188,7 +190,7 @@ class CFetcher extends CDBOperation
                 $this->pdoFetchMode = PDO::FETCH_CLASS;
                 $this->query->setStatement($q_select);
                 $this->query->addStatement($q_join);
-                $this->query->addStatement("");
+                $this->query->addStatement(" WHERE A.is_deleted = 0 ");
                 $this->query->addStatement($q_group);
                 $this->query->addStatement($q_order);
                 $this->query->addStatement(" LIMIT ? ");

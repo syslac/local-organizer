@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Gen 07, 2022 alle 16:38
--- Versione del server: 10.3.29-MariaDB
--- Versione PHP: 7.3.29
+-- Generation Time: May 01, 2022 at 02:48 PM
+-- Server version: 10.3.29-MariaDB
+-- PHP Version: 7.3.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -26,11 +26,12 @@ USE `local_organizer`;
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_bookmarks`
+-- Table structure for table `lo_bookmarks`
 --
 
 CREATE TABLE `lo_bookmarks` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `link` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -38,7 +39,7 @@ CREATE TABLE `lo_bookmarks` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_bookmarks_tags`
+-- Table structure for table `lo_bookmarks_tags`
 --
 
 CREATE TABLE `lo_bookmarks_tags` (
@@ -50,11 +51,12 @@ CREATE TABLE `lo_bookmarks_tags` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_groceries`
+-- Table structure for table `lo_groceries`
 --
 
 CREATE TABLE `lo_groceries` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `item` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `id_priority` int(11) UNSIGNED DEFAULT NULL,
   `qty` decimal(10,2) UNSIGNED NOT NULL,
@@ -65,7 +67,7 @@ CREATE TABLE `lo_groceries` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_groceries_tags`
+-- Table structure for table `lo_groceries_tags`
 --
 
 CREATE TABLE `lo_groceries_tags` (
@@ -77,11 +79,12 @@ CREATE TABLE `lo_groceries_tags` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_modules`
+-- Table structure for table `lo_modules`
 --
 
 CREATE TABLE `lo_modules` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `module_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `module_table` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `module_class` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
@@ -90,11 +93,12 @@ CREATE TABLE `lo_modules` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_priority`
+-- Table structure for table `lo_priority`
 --
 
 CREATE TABLE `lo_priority` (
   `id` int(11) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `priority_num` int(2) UNSIGNED NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -102,11 +106,12 @@ CREATE TABLE `lo_priority` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_projects`
+-- Table structure for table `lo_projects`
 --
 
 CREATE TABLE `lo_projects` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `codename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -114,7 +119,7 @@ CREATE TABLE `lo_projects` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_projects_links`
+-- Table structure for table `lo_projects_links`
 --
 
 CREATE TABLE `lo_projects_links` (
@@ -126,7 +131,7 @@ CREATE TABLE `lo_projects_links` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_project_tags`
+-- Table structure for table `lo_project_tags`
 --
 
 CREATE TABLE `lo_project_tags` (
@@ -138,7 +143,7 @@ CREATE TABLE `lo_project_tags` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_tags`
+-- Table structure for table `lo_tags`
 --
 
 CREATE TABLE `lo_tags` (
@@ -149,11 +154,12 @@ CREATE TABLE `lo_tags` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_todo`
+-- Table structure for table `lo_todo`
 --
 
 CREATE TABLE `lo_todo` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `due_date` date DEFAULT NULL,
   `id_priority` int(11) UNSIGNED DEFAULT NULL,
@@ -163,7 +169,7 @@ CREATE TABLE `lo_todo` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_todo_tags`
+-- Table structure for table `lo_todo_tags`
 --
 
 CREATE TABLE `lo_todo_tags` (
@@ -175,22 +181,24 @@ CREATE TABLE `lo_todo_tags` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_user`
+-- Table structure for table `lo_user`
 --
 
 CREATE TABLE `lo_user` (
   `id` int(11) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_wishlist`
+-- Table structure for table `lo_wishlist`
 --
 
 CREATE TABLE `lo_wishlist` (
   `id` int(11) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `id_for_user` int(11) UNSIGNED NOT NULL,
   `item` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `link` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -203,23 +211,24 @@ CREATE TABLE `lo_wishlist` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_wishlist_tags`
+-- Table structure for table `lo_wishlist_tags`
 --
 
 CREATE TABLE `lo_wishlist_tags` (
   `id` int(10) UNSIGNED NOT NULL,
   `id_tag` int(11) UNSIGNED DEFAULT NULL,
-  `id_wishlist_item` int(11) UNSIGNED DEFAULT NULL
+  `id_wishlist` int(11) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_writing_prompts`
+-- Table structure for table `lo_writing_prompts`
 --
 
 CREATE TABLE `lo_writing_prompts` (
   `id` int(10) UNSIGNED NOT NULL,
+  `is_deleted` int(1) UNSIGNED NOT NULL DEFAULT 0,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `excerpt` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -227,7 +236,7 @@ CREATE TABLE `lo_writing_prompts` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_writing_prompts_links`
+-- Table structure for table `lo_writing_prompts_links`
 --
 
 CREATE TABLE `lo_writing_prompts_links` (
@@ -239,7 +248,7 @@ CREATE TABLE `lo_writing_prompts_links` (
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `lo_writing_prompts_tags`
+-- Table structure for table `lo_writing_prompts_tags`
 --
 
 CREATE TABLE `lo_writing_prompts_tags` (
@@ -249,17 +258,18 @@ CREATE TABLE `lo_writing_prompts_tags` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Indici per le tabelle scaricate
+-- Indexes for dumped tables
 --
 
 --
--- Indici per le tabelle `lo_bookmarks`
+-- Indexes for table `lo_bookmarks`
 --
 ALTER TABLE `lo_bookmarks`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_bookmarks_tags`
+-- Indexes for table `lo_bookmarks_tags`
 --
 ALTER TABLE `lo_bookmarks_tags`
   ADD PRIMARY KEY (`id`),
@@ -267,16 +277,17 @@ ALTER TABLE `lo_bookmarks_tags`
   ADD KEY `id_tag` (`id_tag`);
 
 --
--- Indici per le tabelle `lo_groceries`
+-- Indexes for table `lo_groceries`
 --
 ALTER TABLE `lo_groceries`
   ADD PRIMARY KEY (`id`),
   ADD KEY `item` (`item`),
   ADD KEY `id_priority` (`id_priority`),
-  ADD KEY `deadline` (`deadline`);
+  ADD KEY `deadline` (`deadline`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_groceries_tags`
+-- Indexes for table `lo_groceries_tags`
 --
 ALTER TABLE `lo_groceries_tags`
   ADD PRIMARY KEY (`id`),
@@ -284,26 +295,29 @@ ALTER TABLE `lo_groceries_tags`
   ADD KEY `id_tag` (`id_tag`);
 
 --
--- Indici per le tabelle `lo_modules`
+-- Indexes for table `lo_modules`
 --
 ALTER TABLE `lo_modules`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_priority`
+-- Indexes for table `lo_priority`
 --
 ALTER TABLE `lo_priority`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `priority_num_2` (`priority_num`);
+  ADD UNIQUE KEY `priority_num_2` (`priority_num`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_projects`
+-- Indexes for table `lo_projects`
 --
 ALTER TABLE `lo_projects`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_projects_links`
+-- Indexes for table `lo_projects_links`
 --
 ALTER TABLE `lo_projects_links`
   ADD PRIMARY KEY (`id`),
@@ -311,7 +325,7 @@ ALTER TABLE `lo_projects_links`
   ADD KEY `id_bookmark` (`id_bookmark`);
 
 --
--- Indici per le tabelle `lo_project_tags`
+-- Indexes for table `lo_project_tags`
 --
 ALTER TABLE `lo_project_tags`
   ADD PRIMARY KEY (`id`),
@@ -319,23 +333,24 @@ ALTER TABLE `lo_project_tags`
   ADD KEY `id_tag` (`id_tag`);
 
 --
--- Indici per le tabelle `lo_tags`
+-- Indexes for table `lo_tags`
 --
 ALTER TABLE `lo_tags`
   ADD PRIMARY KEY (`id`),
   ADD KEY `tag` (`name`);
 
 --
--- Indici per le tabelle `lo_todo`
+-- Indexes for table `lo_todo`
 --
 ALTER TABLE `lo_todo`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_priority` (`id_priority`),
   ADD KEY `due_date` (`due_date`),
-  ADD KEY `done` (`done`);
+  ADD KEY `done` (`done`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_todo_tags`
+-- Indexes for table `lo_todo_tags`
 --
 ALTER TABLE `lo_todo_tags`
   ADD PRIMARY KEY (`id`),
@@ -343,14 +358,15 @@ ALTER TABLE `lo_todo_tags`
   ADD KEY `id_tag` (`id_tag`);
 
 --
--- Indici per le tabelle `lo_user`
+-- Indexes for table `lo_user`
 --
 ALTER TABLE `lo_user`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user` (`name`);
+  ADD KEY `user` (`name`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_wishlist`
+-- Indexes for table `lo_wishlist`
 --
 ALTER TABLE `lo_wishlist`
   ADD PRIMARY KEY (`id`),
@@ -359,24 +375,26 @@ ALTER TABLE `lo_wishlist`
   ADD KEY `price` (`price`),
   ADD KEY `priority` (`id_priority`),
   ADD KEY `deadline` (`deadline`),
-  ADD KEY `bought` (`bought`);
+  ADD KEY `bought` (`bought`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_wishlist_tags`
+-- Indexes for table `lo_wishlist_tags`
 --
 ALTER TABLE `lo_wishlist_tags`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_tag` (`id_tag`),
-  ADD KEY `id_wishlist_item` (`id_wishlist_item`);
+  ADD KEY `id_wishlist_item` (`id_wishlist`);
 
 --
--- Indici per le tabelle `lo_writing_prompts`
+-- Indexes for table `lo_writing_prompts`
 --
 ALTER TABLE `lo_writing_prompts`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `is_deleted` (`is_deleted`);
 
 --
--- Indici per le tabelle `lo_writing_prompts_links`
+-- Indexes for table `lo_writing_prompts_links`
 --
 ALTER TABLE `lo_writing_prompts_links`
   ADD PRIMARY KEY (`id`),
@@ -384,7 +402,7 @@ ALTER TABLE `lo_writing_prompts_links`
   ADD KEY `id_prompt` (`id_prompt`);
 
 --
--- Indici per le tabelle `lo_writing_prompts_tags`
+-- Indexes for table `lo_writing_prompts_tags`
 --
 ALTER TABLE `lo_writing_prompts_tags`
   ADD PRIMARY KEY (`id`),
@@ -392,191 +410,191 @@ ALTER TABLE `lo_writing_prompts_tags`
   ADD KEY `id_tag` (`id_tag`);
 
 --
--- AUTO_INCREMENT per le tabelle scaricate
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT per la tabella `lo_bookmarks`
+-- AUTO_INCREMENT for table `lo_bookmarks`
 --
 ALTER TABLE `lo_bookmarks`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_bookmarks_tags`
+-- AUTO_INCREMENT for table `lo_bookmarks_tags`
 --
 ALTER TABLE `lo_bookmarks_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_groceries`
+-- AUTO_INCREMENT for table `lo_groceries`
 --
 ALTER TABLE `lo_groceries`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_groceries_tags`
+-- AUTO_INCREMENT for table `lo_groceries_tags`
 --
 ALTER TABLE `lo_groceries_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_modules`
+-- AUTO_INCREMENT for table `lo_modules`
 --
 ALTER TABLE `lo_modules`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_priority`
+-- AUTO_INCREMENT for table `lo_priority`
 --
 ALTER TABLE `lo_priority`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_projects`
+-- AUTO_INCREMENT for table `lo_projects`
 --
 ALTER TABLE `lo_projects`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_projects_links`
+-- AUTO_INCREMENT for table `lo_projects_links`
 --
 ALTER TABLE `lo_projects_links`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_project_tags`
+-- AUTO_INCREMENT for table `lo_project_tags`
 --
 ALTER TABLE `lo_project_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_tags`
+-- AUTO_INCREMENT for table `lo_tags`
 --
 ALTER TABLE `lo_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_todo`
+-- AUTO_INCREMENT for table `lo_todo`
 --
 ALTER TABLE `lo_todo`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_todo_tags`
+-- AUTO_INCREMENT for table `lo_todo_tags`
 --
 ALTER TABLE `lo_todo_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_user`
+-- AUTO_INCREMENT for table `lo_user`
 --
 ALTER TABLE `lo_user`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_wishlist`
+-- AUTO_INCREMENT for table `lo_wishlist`
 --
 ALTER TABLE `lo_wishlist`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_wishlist_tags`
+-- AUTO_INCREMENT for table `lo_wishlist_tags`
 --
 ALTER TABLE `lo_wishlist_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_writing_prompts`
+-- AUTO_INCREMENT for table `lo_writing_prompts`
 --
 ALTER TABLE `lo_writing_prompts`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_writing_prompts_links`
+-- AUTO_INCREMENT for table `lo_writing_prompts_links`
 --
 ALTER TABLE `lo_writing_prompts_links`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT per la tabella `lo_writing_prompts_tags`
+-- AUTO_INCREMENT for table `lo_writing_prompts_tags`
 --
 ALTER TABLE `lo_writing_prompts_tags`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- Limiti per le tabelle scaricate
+-- Constraints for dumped tables
 --
 
 --
--- Limiti per la tabella `lo_bookmarks_tags`
+-- Constraints for table `lo_bookmarks_tags`
 --
 ALTER TABLE `lo_bookmarks_tags`
   ADD CONSTRAINT `lo_bookmarks_tags_ibfk_1` FOREIGN KEY (`id_bookmark`) REFERENCES `lo_bookmarks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_bookmarks_tags_ibfk_2` FOREIGN KEY (`id_tag`) REFERENCES `lo_tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_groceries`
+-- Constraints for table `lo_groceries`
 --
 ALTER TABLE `lo_groceries`
   ADD CONSTRAINT `lo_groceries_ibfk_1` FOREIGN KEY (`id_priority`) REFERENCES `lo_priority` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_groceries_tags`
+-- Constraints for table `lo_groceries_tags`
 --
 ALTER TABLE `lo_groceries_tags`
   ADD CONSTRAINT `lo_groceries_tags_ibfk_1` FOREIGN KEY (`id_item`) REFERENCES `lo_groceries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_groceries_tags_ibfk_2` FOREIGN KEY (`id_tag`) REFERENCES `lo_tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_projects_links`
+-- Constraints for table `lo_projects_links`
 --
 ALTER TABLE `lo_projects_links`
   ADD CONSTRAINT `lo_projects_links_ibfk_1` FOREIGN KEY (`id_bookmark`) REFERENCES `lo_bookmarks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_projects_links_ibfk_2` FOREIGN KEY (`id_project`) REFERENCES `lo_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_project_tags`
+-- Constraints for table `lo_project_tags`
 --
 ALTER TABLE `lo_project_tags`
   ADD CONSTRAINT `lo_project_tags_ibfk_1` FOREIGN KEY (`id_project`) REFERENCES `lo_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_project_tags_ibfk_2` FOREIGN KEY (`id_tag`) REFERENCES `lo_tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_todo`
+-- Constraints for table `lo_todo`
 --
 ALTER TABLE `lo_todo`
   ADD CONSTRAINT `lo_todo_ibfk_1` FOREIGN KEY (`id_priority`) REFERENCES `lo_priority` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_todo_tags`
+-- Constraints for table `lo_todo_tags`
 --
 ALTER TABLE `lo_todo_tags`
   ADD CONSTRAINT `lo_todo_tags_ibfk_1` FOREIGN KEY (`id_tag`) REFERENCES `lo_tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_todo_tags_ibfk_2` FOREIGN KEY (`id_todo`) REFERENCES `lo_todo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_wishlist`
+-- Constraints for table `lo_wishlist`
 --
 ALTER TABLE `lo_wishlist`
   ADD CONSTRAINT `lo_wishlist_ibfk_1` FOREIGN KEY (`id_for_user`) REFERENCES `lo_user` (`id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_wishlist_ibfk_2` FOREIGN KEY (`id_priority`) REFERENCES `lo_priority` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_wishlist_tags`
+-- Constraints for table `lo_wishlist_tags`
 --
 ALTER TABLE `lo_wishlist_tags`
   ADD CONSTRAINT `lo_wishlist_tags_ibfk_1` FOREIGN KEY (`id_tag`) REFERENCES `lo_tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `lo_wishlist_tags_ibfk_2` FOREIGN KEY (`id_wishlist_item`) REFERENCES `lo_wishlist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `lo_wishlist_tags_ibfk_2` FOREIGN KEY (`id_wishlist`) REFERENCES `lo_wishlist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_writing_prompts_links`
+-- Constraints for table `lo_writing_prompts_links`
 --
 ALTER TABLE `lo_writing_prompts_links`
   ADD CONSTRAINT `lo_writing_prompts_links_ibfk_1` FOREIGN KEY (`id_bookmark`) REFERENCES `lo_bookmarks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `lo_writing_prompts_links_ibfk_2` FOREIGN KEY (`id_prompt`) REFERENCES `lo_writing_prompts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `lo_writing_prompts_tags`
+-- Constraints for table `lo_writing_prompts_tags`
 --
 ALTER TABLE `lo_writing_prompts_tags`
   ADD CONSTRAINT `lo_writing_prompts_tags_ibfk_1` FOREIGN KEY (`id_prompt`) REFERENCES `lo_writing_prompts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

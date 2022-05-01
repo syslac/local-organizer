@@ -179,7 +179,8 @@ class CFormExternalSelect implements IDisplayColumn
         } 
         $ret = "<div class=\"input_unit\">
         <div class=\"field\">".htmlspecialchars($header)."</div>
-        <select name=\"".htmlspecialchars($name)."\">";
+        <select name=\"".htmlspecialchars($name)."\">
+            <option value=\"\" disabled selected=\"selected\" style==\"display:none\">Selection:</option>";
         foreach ($this->opt as $id => $name) 
         {
             $ret .= "<option value=\"".htmlspecialchars($id)."\"";

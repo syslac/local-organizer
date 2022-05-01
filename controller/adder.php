@@ -32,11 +32,9 @@ class CAdder extends CDBOperation
                 $fields = "";
                 $places = "";
                 $all_fields_valid = true;
-                var_dump($pars);
                 foreach ($pars as $fld => $val) 
                 {
                     $all_fields_valid = $all_fields_valid && CDBConfig::isValidColumn($this->table, $fld);
-                    var_dump($all_fields_valid);
                     if ($val == '') 
                     {
                         $val = null;
